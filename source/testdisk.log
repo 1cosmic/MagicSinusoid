@@ -1,0 +1,194 @@
+
+
+Wed Jul 20 15:47:40 2022
+Command line: TestDisk
+
+TestDisk 7.1, Data Recovery Utility, July 2019
+Christophe GRENIER <grenier@cgsecurity.org>
+https://www.cgsecurity.org
+OS: Linux, kernel 5.18.12-arch1-1 (#1 SMP PREEMPT_DYNAMIC Fri, 15 Jul 2022 15:33:02 +0000) x86_64
+Compiler: GCC 11.2
+ext2fs lib: 1.46.5, ntfs lib: libntfs-3g, reiserfs lib: none, ewf lib: none, curses lib: ncurses 6.3
+User is not root!
+Hard disk list
+
+
+TestDisk exited normally.
+Using locale 'LC_CTYPE=en_US.UTF-8;LC_NUMERIC=ru_RU.UTF-8;LC_TIME=ru_RU.UTF-8;LC_COLLATE=en_US.UTF-8;LC_MONETARY=ru_RU.UTF-8;LC_MESSAGES=en_US.UTF-8;LC_PAPER=ru_RU.UTF-8;LC_NAME=ru_RU.UTF-8;LC_ADDRESS=ru_RU.UTF-8;LC_TELEPHONE=ru_RU.UTF-8;LC_MEASUREMENT=ru_RU.UTF-8;LC_IDENTIFICATION=ru_RU.UTF-8'.
+
+
+Wed Jul 20 15:47:41 2022
+Command line: TestDisk /debug
+
+TestDisk 7.1, Data Recovery Utility, July 2019
+Christophe GRENIER <grenier@cgsecurity.org>
+https://www.cgsecurity.org
+OS: Linux, kernel 5.18.12-arch1-1 (#1 SMP PREEMPT_DYNAMIC Fri, 15 Jul 2022 15:33:02 +0000) x86_64
+Compiler: GCC 11.2
+ext2fs lib: 1.46.5, ntfs lib: libntfs-3g, reiserfs lib: none, ewf lib: none, curses lib: ncurses 6.3
+/dev/sda: LBA, HPA, LBA48, DCO support
+/dev/sda: size       625142448 sectors
+/dev/sda: user_max   625142448 sectors
+/dev/sda: native_max 625142448 sectors
+/dev/sda: dco        625142448 sectors
+Warning: can't get size for Disk /dev/mapper/control - 0 B - 0 sectors, sector size=512
+Hard disk list
+Disk /dev/sda - 320 GB / 298 GiB - CHS 38913 255 63, sector size=512 - TOSHIBA MK3276GSX -63, S/N:12FJP0VDT, FW:GS101X
+
+Partition table type (auto): EFI GPT
+Disk /dev/sda - 320 GB / 298 GiB - TOSHIBA MK3276GSX -63
+Partition table type: EFI GPT
+
+Interface Advanced
+hdr_size=92
+hdr_lba_self=1
+hdr_lba_alt=625142447 (expected 625142447)
+hdr_lba_start=2048
+hdr_lba_end=625142414
+hdr_lba_table=2
+hdr_entries=128
+hdr_entsz=128
+ 1 P EFI System                  4096     618495     614400
+ 2 P Linux filesys. data       618496  625137344  624518849 [root]
+
+
+dir_partition inode=2
+ 2 P Linux filesys. data       618496  625137344  624518849 [root]
+Directory /
+       2 drwxr-xr-x     0      0      4096  9-May-2022 22:52 .
+       2 drwxr-xr-x     0      0      4096  9-May-2022 22:52 ..
+      11 drwx------     0      0     16384 18-Apr-2022 17:14 lost+found
+ 1966081 drwxr-xr-x     0      0      4096 17-Jul-2022 12:04 boot
+ 11403265 drwxr-xr-x     0      0      4096 18-Apr-2022 17:15 dev
+ 4980737 drwxr-xr-x     0      0      4096 18-Apr-2022 17:15 proc
+ 8912897 drwxr-xr-x     0      0      4096 18-Apr-2022 17:15 run
+ 7733249 drwxr-xr-x     0      0      4096 18-Apr-2022 17:15 sys
+ 4063233 drwxr-xr-x     0      0      4096 20-Jul-2022 15:43 usr
+ 9568257 drwxr-xr-x     0      0     12288 20-Jul-2022 15:43 etc
+ 10092545 drwxr-xr-x     0      0      4096 18-Jul-2022 19:12 var
+ 17956865 drwxrwxrwt     0      0      4096 18-Apr-2022 17:54 tmp
+      12 lrwxrwxrwx     0      0         7  7-Dec-2021 06:41 bin
+ 18350081 drwxr-xr-x     0      0      4096 18-Apr-2022 17:52 home
+      13 lrwxrwxrwx     0      0         7  7-Dec-2021 06:41 lib
+      14 lrwxrwxrwx     0      0         7  7-Dec-2021 06:41 lib64
+ 18481153 drwxr-xr-x     0      0      4096  7-Dec-2021 06:41 mnt
+ 2490369 drwxr-xr-x     0      0      4096 30-Apr-2022 09:47 opt
+ 3932161 drwxr-x---     0      0      4096 16-Jun-2022 17:45 root
+      15 lrwxrwxrwx     0      0         7  7-Dec-2021 06:41 sbin
+ 11796481 drwxr-xr-x     0      0      4096 18-Apr-2022 17:31 srv
+ 8519681 drwxr-xr-x     0      0      4096  9-May-2022 23:11 media
+
+dir_partition inode=18350081
+ 2 P Linux filesys. data       618496  625137344  624518849 [root]
+Directory /home
+ 18350081 drwxr-xr-x     0      0      4096 18-Apr-2022 17:52 .
+       2 drwxr-xr-x     0      0      4096  9-May-2022 22:52 ..
+ 18350082 drwx------  1000   1000      4096 20-Jul-2022 15:47 cosm1c
+
+dir_partition inode=18350082
+ 2 P Linux filesys. data       618496  625137344  624518849 [root]
+Directory /home/cosm1c
+ 18350082 drwx------  1000   1000      4096 20-Jul-2022 15:47 .
+ 18350081 drwxr-xr-x     0      0      4096 18-Apr-2022 17:52 ..
+ 18350083 -rw-r--r--  1000   1000        21  8-Jan-2022 22:31 .bash_logout
+ 18350112 drwx------  1000   1000      4096 18-Apr-2022 20:34 .mozilla
+ 18350085 -rw-r--r--  1000   1000        86 14-Mar-2022 18:35 .nanorc
+ 18350143 -rw-r--r--  1000   1000        57 18-Apr-2022 17:53 .bash_profile
+ 18350087 -rwxr-xr-x  1000   1000        38 14-Mar-2022 18:35 .Xresources
+ 18367548 -rw-r--r--  1000   1000      2742  1-Jun-2022 11:01 .bashrc
+ 18351070 drwxr-xr-x  1000   1000      4096 22-Apr-2022 18:30 .lazarus
+ 18350090 drwxr-xr-x  1000   1000      4096 16-Jul-2022 15:15 .config
+ 18350086 drwxr-xr-x  1000   1000      4096 18-Apr-2022 18:01 Desktop
+ 18350144 drwxr-xr-x  1000   1000      4096  1-Jul-2022 08:09 Downloads
+ 18350145 drwxr-xr-x  1000   1000      4096 18-Apr-2022 18:01 Templates
+ 18350146 drwxr-xr-x  1000   1000      4096 18-Apr-2022 18:01 Public
+ 18350147 drwxr-xr-x  1000   1000      4096  5-Jun-2022 16:17 Documents
+ 18350148 drwxr-xr-x  1000   1000      4096 18-Apr-2022 18:01 Music
+ 18350149 drwxr-xr-x  1000   1000      4096 11-Jul-2022 16:37 Pictures
+ 18350150 drwxr-xr-x  1000   1000      4096 18-Apr-2022 18:01 Videos
+ 18350153 drwx------  1000   1000      4096 10-Jul-2022 17:35 .cache
+ 18350154 drwx------  1000   1000      4096  1-May-2022 10:01 .local
+ 18350171 -rw-------  1000   1000       470  1-Jun-2022 10:53 .bash_history
+ 18351691 drwxr-xr-x  1000   1000      4096  5-Jun-2022 11:52 Coding
+ 18371012 -rw-r--r--  1000   1000      3906  1-Jun-2022 11:06 .zshrc
+ 18352087 drwxr-xr-x  1000   1000      4096  1-May-2022 09:57 .oh-my-zsh
+ 18351524 -rw-r--r--  1000   1000        31 18-Apr-2022 21:43 .zshrc.pre-oh-my-zsh
+ 18351198 -rw-------  1000   1000     24561 14-Jul-2022 21:26 .viminfo
+ 18353767 drwxr-x---  1000   1000      4096 24-Jun-2022 12:56 .vim
+ 18354248 -rw-------  1000   1000     47394 20-Jul-2022 15:47 .zsh_history
+ 18371003 -rw-r--r--  1000   1000       116 10-Jul-2022 17:32 .yarnrc
+ 18357702 drwx--x--x  1000   1000      4096 22-Apr-2022 20:19 .ssh
+ 18367609 -rw-r--r--  1000   1000        76 15-May-2022 13:44 .gitconfig
+ 18353121 -rw-r--r--  1000   1000     43487 14-May-2022 20:03 .zcompdump-MacArch-5.8.1
+ 18358692 drwx------  1000   1000      4096 30-Apr-2022 10:30 .pki
+ 18481814 drwxr-xr-x  1000   1000      4096 30-Apr-2022 15:22 .mono
+ 18358490 -rw-r--r--  1000   1000        11 30-Apr-2022 09:33 octave-workspace
+ 18482827 drwxr-xr-x  1000   1000      4096 30-Apr-2022 15:22 SSAU
+ 18358783 -rw-r--r--  1000   1000      1223 14-Jun-2022 09:56 .recently-used
+ 18358933 drwxr-xr-x  1000   1000      4096  1-May-2022 11:06 .yarn
+ 18361728 drwx------  1000   1000      4096 25-Jun-2022 14:44 .gnupg
+ 18367032 drwxr-xr-x  1000   1000      4096 15-May-2022 07:39 .npm
+  134207 drwxr-xr-x  1000   1000      4096 29-May-2022 23:07 .cargo
+ 18352070 -rw-------  1000   1000        20 15-Jul-2022 11:42 .lesshst
+ 18483669 drwx------  1000   1000      4096 22-May-2022 12:06 .thunderbird
+ 18363420 -rw-r--r--  1000   1000      1262 26-May-2022 12:10 .vimspector.log
+ 18352299 -rw-r--r--  1000   1000       215 15-Jul-2022 15:21 .wget-hsts
+ 18350607 -rw-r--r--  1000   1000      4752  1-Jul-2022 07:18 .vimrc
+ 18877399 drwxr-xr-x  1000   1000      4096 25-Jun-2022 11:54 .fonts
+ 18877529 drwxr-xr-x  1000   1000      4096  8-Jul-2022 17:39 .java
+ 18356131 -rw-r--r--  1000   1000     45115 10-Jul-2022 15:33 .zcompdump-MacArch-5.9
+ 18360406 -rw-r--r--  1000   1000     46624 20-Jul-2022 15:37 testdisk.log
+
+dir_partition inode=18351691
+ 2 P Linux filesys. data       618496  625137344  624518849 [root]
+Directory /home/cosm1c/Coding
+ 18351691 drwxr-xr-x  1000   1000      4096  5-Jun-2022 11:52 .
+ 18350082 drwx------  1000   1000      4096 20-Jul-2022 15:47 ..
+ 18481687 drwxr-xr-x  1000   1000      4096 29-Apr-2022 21:32 SSAU
+ 18481839 drwxr-xr-x  1000   1000      4096 29-May-2022 08:57 OS
+ 18482774 drwxr-xr-x  1000   1000      4096 14-Jul-2022 09:51 Projects
+ 18482606 drwxr-xr-x  1000   1000      4096 22-Apr-2022 18:35 Embedeed
+ 18368383 drwxr-xr-x  1000   1000      4096 14-Jul-2022 09:53 C++
+ 18484669 drwxr-xr-x  1000   1000      4096  5-Jun-2022 11:52 Algorythms
+
+dir_partition inode=18368383
+ 2 P Linux filesys. data       618496  625137344  624518849 [root]
+Directory /home/cosm1c/Coding/C++
+ 18368383 drwxr-xr-x  1000   1000      4096 14-Jul-2022 09:53 .
+ 18351691 drwxr-xr-x  1000   1000      4096  5-Jun-2022 11:52 ..
+ 18368422 drwxr-xr-x  1000   1000      4096 22-May-2022 14:04 learning
+ 19272196 drwxr-xr-x  1000   1000      4096 16-Jul-2022 16:03 Sinusoida
+ 1181449 drwxr-xr-x  1000   1000      4096 15-Jul-2022 19:30 build-Sinusoida-Desktop-Debug
+
+dir_partition inode=19272196
+ 2 P Linux filesys. data       618496  625137344  624518849 [root]
+Directory /home/cosm1c/Coding/C++/Sinusoida
+ 19272196 drwxr-xr-x  1000   1000      4096 16-Jul-2022 16:03 .
+ 18368383 drwxr-xr-x  1000   1000      4096 14-Jul-2022 09:53 ..
+ 19272210 drwxr-xr-x  1000   1000      4096 14-Jul-2022 12:31 .git
+ 19272217 drwxr-xr-x  1000   1000      4096 20-Jul-2022 15:47 source
+ 19272207 -rw-r--r--  1000   1000       471 14-Jul-2022 10:31 CMakeLists.txt
+ 19271372 drwxr-xr-x  1000   1000      4096 20-Jul-2022 15:15 build
+ 19272209 -rw-r--r--  1000   1000       741 14-Jul-2022 09:53 .gitignore
+ 19271409 -rw-r--r--  1000   1000     22309 16-Jul-2022 16:03 CMakeLists.txt.user
+
+dir_partition inode=19272217
+ 2 P Linux filesys. data       618496  625137344  624518849 [root]
+Directory /home/cosm1c/Coding/C++/Sinusoida/source
+ 19272217 drwxr-xr-x  1000   1000      4096 20-Jul-2022 15:47 .
+ 19272196 drwxr-xr-x  1000   1000      4096 16-Jul-2022 16:03 ..
+ 19402814 drwxr-xr-x  1000   1000      4096 15-Jul-2022 14:53 headers
+ 19272222 -rw-r--r--  1000   1000      2210 20-Jul-2022 15:15 gui.cpp
+ 19271408 -rw-r--r--  1000   1000      1167 20-Jul-2022 15:15 main.cpp
+ 19271406 -rw-r--r--  1000   1000      2413 20-Jul-2022 15:15 processor.cpp
+ 19271401 -rw-r--r--  1000   1000      1139 20-Jul-2022 15:47 testdisk.log
+Directory /home/cosm1c/Coding/C++/Sinusoida
+ 19272196 drwxr-xr-x  1000   1000      4096 16-Jul-2022 16:03 .
+ 18368383 drwxr-xr-x  1000   1000      4096 14-Jul-2022 09:53 ..
+ 19272210 drwxr-xr-x  1000   1000      4096 14-Jul-2022 12:31 .git
+ 19272217 drwxr-xr-x  1000   1000      4096 20-Jul-2022 15:47 source
+ 19272207 -rw-r--r--  1000   1000       471 14-Jul-2022 10:31 CMakeLists.txt
+ 19271372 drwxr-xr-x  1000   1000      4096 20-Jul-2022 15:15 build
+ 19272209 -rw-r--r--  1000   1000       741 14-Jul-2022 09:53 .gitignore
+ 19271409 -rw-r--r--  1000   1000     22309 16-Jul-2022 16:03 CMakeLists.txt.user
+SIGHUP detected! TestDisk has been killed.
