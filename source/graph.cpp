@@ -10,6 +10,13 @@ SDL_Rect R_graph;
 SDL_Point drawMP;
 SDL_Point relativelyPoint;
 
+// TTH of sinusoid.
+int Mz = 100;
+int Amplitude = 100;
+float Phase = 2 * M_PI;
+float curPhase = 0;
+int speed_Phase = 90;
+
 // First color - daily, second - nightly.
 int colors_Axis[2][3] = {{0, 0, 0}, {255, 255, 255}};
 
@@ -100,7 +107,36 @@ void drawPointerY(int lineW) {
     SDL_RenderDrawLines(render, arrow, 3);
   }
 }
-void drawSinusoid(int lineW) {}
+void drawSinusoid(int lineW) {
+  // Drawing of sinusoid.
+
+  int detalization = 1000;
+  float k_of_scale = (R_graph.w / detalization);
+
+  SDL_Point points[detalization];
+
+  int i;
+  float u;
+  float omega_t;
+
+  curPhase = (curPhase == 0) ? Phase : curPhase - Phase / speed_Phase;
+
+  while (lineW > 0) {
+
+    omega_t = Phase * Mz / detalization;
+
+    for (i = 0; i < detalization; ++i) {
+
+      u = Amplitude * sin(omega_t * i + curPhase);
+      points[i].x = drawMP.x + i * k_of_scale * scaleX + lineW;
+      points[i].y = drawMP.y + u;
+    }
+
+    SDL_RenderDrawLines(render, points, detalization);
+
+    --lineW;
+  }
+}
 
 void drawAxis(int visionMode) {
 
@@ -117,6 +153,7 @@ void drawAxis(int visionMode) {
 
   drawPointerX(3);
   drawPointerY(3);
+  drawSinusoid(3);
 }
 
 void setDeltaRelatively(SDL_Point deltaMove) {
