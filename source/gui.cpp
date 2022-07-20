@@ -1,3 +1,4 @@
+#include "headers/graph.hpp"
 #include <SDL2/SDL.h>
 
 #include <SDL2/SDL_render.h>
@@ -6,6 +7,14 @@
 #include <vector>
 
 using namespace std;
+
+// Daily (0) or night (1) mode.
+int visionMode = 0;
+
+// First color - daily, second - nightly.
+int colors_background[2][3] = {
+    {255, 255, 255},
+};
 
 const Uint32 FPS = 60; // FPS.
 Uint32 _FPS_Timer;     // for control of frame rate.
@@ -74,12 +83,18 @@ void destroyGUI(void) {
 bool showMain(void) {
   // Set up default option of main screen & window. Show is its.
 
+  int c1, c2, c3;
+
+  c1 = colors_background[visionMode][0];
+  c2 = colors_background[visionMode][1];
+  c3 = colors_background[visionMode][2];
+
   // Clear render.
   SDL_RenderClear(render);
 
   // Clear & set main options.
   SDL_RenderSetViewport(render, &R_backbround);
-  SDL_SetRenderDrawColor(render, 255, 255, 255, SDL_ALPHA_OPAQUE);
+  SDL_SetRenderDrawColor(render, c1, c2, c3, SDL_ALPHA_OPAQUE);
   SDL_RenderFillRect(render, &R_backbround);
 
   return true;
@@ -93,4 +108,14 @@ void displayChanges() {
     _FPS_Timer = SDL_GetTicks();
   }
   SDL_RenderPresent(render);
+}
+
+void drawGraph() { drawAxis(visionMode); }
+
+void setVisionMode(bool mode) {
+  // Set up vision mode.
+  if (mode)
+    visionMode = 1;
+  else
+    visionMode = 0;
 }

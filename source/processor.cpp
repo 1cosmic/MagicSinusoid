@@ -14,8 +14,8 @@ using namespace std;
 extern SDL_Renderer *render;
 
 int i;
-float scaleX = 1;
-float scaleY = 1;
+extern float scaleY;
+extern float scaleX;
 
 SDL_Point moveCursor; // if mouse is moving.
 SDL_Point deltaMove;  // delta betwenn move Cursor & coord of Button Pressed.
@@ -46,7 +46,7 @@ bool processor(SDL_Event event) {
         showMain();
 
         // Prepare-calc of animated Axis.
-        drawAxis();
+        drawGraph();
       }
     }
 
@@ -90,7 +90,7 @@ bool processor(SDL_Event event) {
 
         if (scaleX < 10 && scaleX >= 1) {
           scaleX -= 1;
-          set_ScaleX(scaleX);
+          // set_ScaleX(scaleX);
 
         } else if (scaleX < 1) {
           scaleX -= 0.1;
@@ -106,7 +106,7 @@ bool processor(SDL_Event event) {
 
         if (scaleX < 10 && scaleX >= 1) {
           scaleX += 1;
-          set_ScaleX(scaleX);
+          // set_ScaleX(scaleX);
 
         } else if (scaleX < 1) {
           scaleX += 0.1;

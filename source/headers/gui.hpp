@@ -12,6 +12,10 @@ void destroyGUI(void);
 // Sugar. Run game & show it.
 bool showMain(void);
 
+// Draw window of graph.
+void drawGraph();
+
+// Display changes.
 void displayChanges();
 
 #endif // !_H_GUI

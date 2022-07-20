@@ -31,9 +31,8 @@ int main() {
   initGraph(SCR_W, SCR_H);
 
   // Set up debug value for Sinusoida.
-  // 10 = 100 Mz,
-  // 1000 = 1 Mz.
-  set_Mz_Amp(1, 100);
+  // set_Mz_Amp(1, 100);
+
   // Main circle.
   while (run) {
     // Processor user input // event.
@@ -51,7 +50,7 @@ int main() {
     showMain();
 
     // Display animated Axis.
-    drawAxis();
+    drawGraph();
 
     // display all changes.
     displayChanges();
