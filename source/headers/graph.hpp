@@ -10,6 +10,7 @@ void initGraph(int SCR_W, int SCR_H);
 bool setDeltaRelatively(SDL_Point deltaMove);
 void setCurrentPointAsMain();
 
+void fixCurrentDrawing();
 void drawAxis(int colorMode);
 
 #endif // GRAPH_HPP

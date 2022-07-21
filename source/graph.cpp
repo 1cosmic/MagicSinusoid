@@ -117,6 +117,17 @@ void drawPointerY(int lineW) {
     SDL_RenderDrawLines(render, arrow, 3);
   }
 }
+
+void drawGrid() {
+  // Drawing of grid for analys.
+  int length = 3000;
+
+  while (length > 0) {
+
+    length -= lineX_length / 10;
+  }
+}
+
 void drawSinusoid(int lineW) {
   // Drawing of sinusoid.
 
@@ -172,10 +183,20 @@ void drawAxis(int visionMode) {
   drawSinusoid(3);
 }
 
-void setDeltaRelatively(SDL_Point deltaMove) {
+void setDeltaRelatively(SDL_Point move) {
+  SDL_Point delta;
+  delta.x = relativelyPoint.x - move.x;
+  delta.y = relativelyPoint.y - move.y;
 
-  drawMP.x = relativelyPoint.x - deltaMove.x;
-  drawMP.y = relativelyPoint.y - deltaMove.y;
+  if (delta.x > lineX_length * (1 - scaleX) + 30)
+    drawMP = delta;
+}
+
+void fixCurrentDrawing() {
+  drawMP.x = 20;
+  drawMP.y = R_graph.h / 2;
+
+  relativelyPoint = drawMP;
 }
 
 void setCurrentPointAsMain() { relativelyPoint = drawMP; }

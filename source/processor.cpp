@@ -90,6 +90,8 @@ bool processor(SDL_Event event) {
         if (scaleX > 1)
           scaleX -= 1;
 
+      // Fixing of the bag.
+      fixCurrentDrawing();
       return true;
 
     // if arrow UP is pressed.
