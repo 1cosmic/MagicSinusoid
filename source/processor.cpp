@@ -37,17 +37,17 @@ bool processor(SDL_Event event) {
 
     // If left button pressed:
     if (moveMouse) {
+
       SDL_GetMouseState(&moveCursor.x, &moveCursor.y);
       deltaMove.x = (coordBP.x - moveCursor.x) / 2;
       deltaMove.y = (coordBP.y - moveCursor.y) / 2;
+      setDeltaRelatively(deltaMove);
 
-      if (setDeltaRelatively(deltaMove)) {
-        // Show background.
-        showMain();
+      // // Show background.
+      // showMain();
 
-        // Prepare-calc of animated Axis.
-        drawGraph();
-      }
+      // // Prepare-calc of animated Axis.
+      // drawGraph();
     }
 
     return true;
@@ -55,10 +55,13 @@ bool processor(SDL_Event event) {
   // If mouse click:
   case SDL_MOUSEBUTTONDOWN:
 
-    i = 0;
-    moveMouse = true;
     SDL_GetMouseState(&coordBP.x, &coordBP.y);
-    return true;
+
+    // If mouse moving in graphic area.
+    if (coordBP.x > 280) {
+      moveMouse = true;
+      return true;
+    }
 
   case SDL_MOUSEBUTTONUP:
 
