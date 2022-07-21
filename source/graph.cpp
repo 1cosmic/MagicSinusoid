@@ -3,32 +3,42 @@
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_render.h>
 #include <cmath>
+#include <iostream>
+
+using namespace std;
 
 extern SDL_Renderer *render;
 
+// Scale of XY.
+float scaleX = 1;
+float scaleY = 1;
+
 SDL_Rect R_graph;
+int lineX_length;
+int lineY_length;
+
 SDL_Point drawMP;
 SDL_Point relativelyPoint;
 
 // TTH of sinusoid.
 int Mz = 100;
-int Amplitude = 100;
+int Amplitude = 10000;
 float Phase = 2 * M_PI;
 float curPhase = 0;
 int speed_Phase = 90;
 
 // First color - daily, second - nightly.
 int colors_Axis[2][3] = {{0, 0, 0}, {255, 255, 255}};
-
-// Scale of XY.
-float scaleX = 1;
-float scaleY = 1;
+int colors_Sinusoid[2][3] = {{0, 200, 255}, {0, 0, 255}};
 
 void initGraph(int W, int H) {
   R_graph.w = 1000;
   R_graph.h = H;
   R_graph.x = 280;
   R_graph.y = 0;
+
+  lineX_length = R_graph.w * 0.96;
+  lineY_length = R_graph.h * 0.95;
 
   drawMP.x = 20;
   drawMP.y = R_graph.h / 2;
@@ -44,7 +54,7 @@ void drawPointerX(int lineW) {
   int arrow_W = 10;
 
   line.h = lineW;
-  line.w = R_graph.w * scaleX;
+  line.w = lineX_length * scaleX;
   line.x = drawMP.x;
   line.y = drawMP.y - lineW / 2;
 
@@ -79,7 +89,7 @@ void drawPointerY(int lineW) {
   int arrow_L = 20;
   int arrow_W = 10;
 
-  line.h = R_graph.h * scaleX;
+  line.h = (scaleY >= 1) ? lineY_length * scaleY : lineY_length;
   line.w = lineW;
   line.x = drawMP.x - lineW / 2;
   line.y = drawMP.y - line.h / 2;
@@ -110,14 +120,14 @@ void drawPointerY(int lineW) {
 void drawSinusoid(int lineW) {
   // Drawing of sinusoid.
 
-  int detalization = 1000;
-  float k_of_scale = (R_graph.w / detalization);
-
-  SDL_Point points[detalization];
+  int detalization = lineX_length * 3;
+  float relatively_x = (float(lineX_length) / detalization) * 0.97;
+  float relatively_y = (lineY_length * 0.5 / float(Amplitude)) * 0.9;
 
   int i;
   float u;
   float omega_t;
+  SDL_Point points[detalization];
 
   curPhase = (curPhase == 0) ? Phase : curPhase - Phase / speed_Phase;
 
@@ -128,8 +138,8 @@ void drawSinusoid(int lineW) {
     for (i = 0; i < detalization; ++i) {
 
       u = Amplitude * sin(omega_t * i + curPhase);
-      points[i].x = drawMP.x + i * k_of_scale * scaleX + lineW;
-      points[i].y = drawMP.y + u;
+      points[i].x = drawMP.x + i * relatively_x * scaleX + lineW;
+      points[i].y = drawMP.y + u * relatively_y * scaleY;
     }
 
     SDL_RenderDrawLines(render, points, detalization);
@@ -147,12 +157,18 @@ void drawAxis(int visionMode) {
   c1 = colors_Axis[visionMode][0];
   c2 = colors_Axis[visionMode][1];
   c3 = colors_Axis[visionMode][2];
-
   SDL_SetRenderDrawColor(render, c1, c2, c3, SDL_ALPHA_OPAQUE);
   SDL_RenderSetViewport(render, &R_graph);
 
   drawPointerX(3);
   drawPointerY(3);
+
+  // Set up colors. For sinusoid.
+  c1 = colors_Sinusoid[visionMode][0];
+  c2 = colors_Sinusoid[visionMode][1];
+  c3 = colors_Sinusoid[visionMode][2];
+  SDL_SetRenderDrawColor(render, c1, c2, c3, SDL_ALPHA_OPAQUE);
+
   drawSinusoid(3);
 }
 

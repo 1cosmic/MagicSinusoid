@@ -84,16 +84,33 @@ bool processor(SDL_Event event) {
       return true;
 
       // if arrow DOWN is pressed.
+    case SDLK_LEFT:
+
+      if (scaleX > 1)
+        if (scaleX > 1)
+          scaleX -= 1;
+
+      return true;
+
+    // if arrow UP is pressed.
+    case SDLK_RIGHT:
+
+      if (scaleX < 10)
+        if (scaleX >= 1)
+          scaleX += 1;
+
+      return true;
+
+      // if arrow DOWN is pressed.
     case SDLK_DOWN:
 
-      if (scaleX > 0.1) {
+      if (scaleY > 0.1) {
 
-        if (scaleX < 10 && scaleX >= 1) {
-          scaleX -= 1;
-          // set_ScaleX(scaleX);
+        if (scaleY > 1) {
+          scaleY -= 1;
 
-        } else if (scaleX < 1) {
-          scaleX -= 0.1;
+        } else if (scaleY <= 1) {
+          scaleY -= 0.1;
         }
       }
 
@@ -102,16 +119,8 @@ bool processor(SDL_Event event) {
     // if arrow UP is pressed.
     case SDLK_UP:
 
-      if (scaleX > 0.1) {
-
-        if (scaleX < 10 && scaleX >= 1) {
-          scaleX += 1;
-          // set_ScaleX(scaleX);
-
-        } else if (scaleX < 1) {
-          scaleX += 0.1;
-        }
-      }
+      if (scaleY < 1)
+        scaleY += 0.1;
 
       return true;
     }

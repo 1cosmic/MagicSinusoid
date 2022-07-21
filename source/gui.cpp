@@ -9,7 +9,7 @@
 using namespace std;
 
 // Daily (0) or night (1) mode.
-int visionMode = 1;
+int visionMode = 0;
 
 // First color - daily, second - nightly.
 int colors_background[2][3] = {
