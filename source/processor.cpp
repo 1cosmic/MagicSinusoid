@@ -1,17 +1,22 @@
 // Processor of key press, event.
 
 #include "headers/graph.hpp"
-#include "headers/gui.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keycode.h>
+#include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_render.h>
+#include <SDL2/SDL_stdinc.h>
 #include <SDL2/SDL_timer.h>
 #include <iostream>
 
 using namespace std;
 
 extern SDL_Renderer *render;
+extern SDL_Rect R_button_Apply;
+extern SDL_Rect R_button_Imitate;
+extern bool active_button_Apply;
+extern bool active_button_Imitate; // check of active button Imitate.
 
 int i;
 extern float scaleY;
@@ -42,12 +47,6 @@ bool processor(SDL_Event event) {
       deltaMove.x = (coordBP.x - moveCursor.x) / 2;
       deltaMove.y = (coordBP.y - moveCursor.y) / 2;
       setDeltaRelatively(deltaMove);
-
-      // // Show background.
-      // showMain();
-
-      // // Prepare-calc of animated Axis.
-      // drawGraph();
     }
 
     return true;
@@ -56,6 +55,11 @@ bool processor(SDL_Event event) {
   case SDL_MOUSEBUTTONDOWN:
 
     SDL_GetMouseState(&coordBP.x, &coordBP.y);
+
+    if (SDL_PointInRect(&coordBP, &R_button_Imitate) == SDL_TRUE) {
+
+      active_button_Imitate = (active_button_Imitate) ? false : true;
+    }
 
     // If mouse moving in graphic area.
     if (coordBP.x > 280) {
@@ -70,6 +74,7 @@ bool processor(SDL_Event event) {
     // ...
     // And set up defalult value.
     moveMouse = false;
+    active_button_Apply = false;
     deltaMove.x = deltaMove.y = 0;
 
     return true;
@@ -77,7 +82,6 @@ bool processor(SDL_Event event) {
   // If key was pressed:
   case SDL_KEYDOWN:
     switch (event.key.keysym.sym) {
-
     // Close game by key: SPACE.
     case SDLK_q:
       return false;

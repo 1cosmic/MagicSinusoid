@@ -9,6 +9,7 @@
 using namespace std;
 
 extern SDL_Renderer *render;
+extern bool active_button_Imitate;
 
 // Scale of XY.
 float scaleX = 1;
@@ -30,7 +31,7 @@ int speed_Phase = 90;
 
 // First color - daily, second - nightly.
 int colors_Axis[2][3] = {{0, 0, 0}, {255, 255, 255}};
-int colors_Sinusoid[2][3] = {{0, 200, 255}, {0, 0, 255}};
+int colors_Sinusoid[2][3] = {{0, 200, 255}, {255, 204, 0}};
 
 void initGraph(int W, int H) {
   R_graph.w = 1000;
@@ -129,7 +130,7 @@ void drawGrid() {
   }
 }
 
-void drawSinusoid(int lineW) {
+void drawSinusoid(int lineW, bool run) {
   // Drawing of sinusoid.
 
   int detalization = lineX_length * 3;
@@ -141,7 +142,8 @@ void drawSinusoid(int lineW) {
   float omega_t;
   SDL_Point points[detalization];
 
-  curPhase = (curPhase == 0) ? Phase : curPhase - Phase / speed_Phase;
+  if (run)
+    curPhase = (curPhase == 0) ? Phase : curPhase - Phase / speed_Phase;
 
   while (lineW > 0) {
 
@@ -181,7 +183,7 @@ void drawAxis(int visionMode) {
   c3 = colors_Sinusoid[visionMode][2];
   SDL_SetRenderDrawColor(render, c1, c2, c3, SDL_ALPHA_OPAQUE);
 
-  drawSinusoid(3);
+  drawSinusoid(3, active_button_Imitate);
 }
 
 void setDeltaRelatively(SDL_Point move) {
