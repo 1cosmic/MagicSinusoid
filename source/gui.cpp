@@ -41,6 +41,8 @@ SDL_Rect R_backbround;           // rect of background.
 SDL_Rect R_ControlPanel;         // rect of control panel.
 SDL_Rect R_button_Apply;         // rect of button apply UI.
 SDL_Rect R_button_Imitate;       // rect of button stat imitate.
+SDL_Rect R_field_Mz;             // rect of UI Mz.
+SDL_Rect R_field_Amplitude;      // rect of Amplitude.
 
 bool active_button_Apply = false;   // check of active button.
 bool active_button_Imitate = false; // check of active button Imitate.
@@ -313,9 +315,6 @@ bool drawBlock_input() {
   //============================================================
   //============================================================
   //============================================================
-
-  SDL_Rect R_field_Mz;
-  SDL_Rect R_field_Amplitude;
 
   R_field_Mz.w = R_label.w;
   R_field_Mz.h = 30;

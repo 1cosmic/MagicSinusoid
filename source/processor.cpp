@@ -3,12 +3,15 @@
 #include "headers/graph.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
+#include <SDL2/SDL_keyboard.h>
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_stdinc.h>
 #include <SDL2/SDL_timer.h>
+#include <cstring>
 #include <iostream>
+#include <iterator>
 
 using namespace std;
 
@@ -17,6 +20,8 @@ extern SDL_Rect R_button_Apply;
 extern SDL_Rect R_button_Imitate;
 extern bool active_button_Apply;
 extern bool active_button_Imitate; // check of active button Imitate.
+extern SDL_Rect R_field_Mz;        // rect of UI Mz.
+extern SDL_Rect R_field_Amplitude; // rect of Amplitude.
 
 int i;
 extern float scaleY;
@@ -25,6 +30,11 @@ extern float scaleX;
 SDL_Point moveCursor; // if mouse is moving.
 SDL_Point deltaMove;  // delta betwenn move Cursor & coord of Button Pressed.
 SDL_Point coordBP;    // if mouse button is pressed - write coords (for move).
+string UI_Mz;         // User Input (UI) for Mz.
+string UI_Amplitude;  // UI for Amplitude.
+string *UI;           // pointer in two up lines.
+char *text;
+bool UI_run = false; // UI is start?
 
 static bool moveMouse = false; // detection of move mouse if pressed button.
 
@@ -56,16 +66,50 @@ bool processor(SDL_Event event) {
 
     SDL_GetMouseState(&coordBP.x, &coordBP.y);
 
-    if (SDL_PointInRect(&coordBP, &R_button_Imitate) == SDL_TRUE) {
-
-      active_button_Imitate = (active_button_Imitate) ? false : true;
-    }
-
     // If mouse moving in graphic area.
     if (coordBP.x > 280) {
       moveMouse = true;
       return true;
     }
+
+    // Check out pressed button.
+    if (SDL_PointInRect(&coordBP, &R_button_Imitate) == SDL_TRUE) {
+      active_button_Imitate = (active_button_Imitate) ? false : true;
+    }
+
+    // UI in field.
+    // ************************************************************
+    // Turn of UI saver.
+
+    if (UI_run) {
+      UI_run = false;
+
+      SDL_StopTextInput();
+
+      // Save ONLY numbers.
+      cout << "Saved value: " << *UI << endl;
+    }
+
+    if (SDL_PointInRect(&coordBP, &R_field_Amplitude) == SDL_TRUE) {
+      UI_run = true;
+
+      UI = &UI_Amplitude;
+      UI->clear();
+      SDL_StartTextInput();
+      cout << "UI Amplitude: " << endl;
+    }
+
+    if (SDL_PointInRect(&coordBP, &R_field_Mz) == SDL_TRUE) {
+      UI_run = true;
+
+      UI = &UI_Mz;
+      UI->clear();
+      SDL_StartTextInput();
+
+      cout << "UI Mz: " << endl;
+    }
+    // ************************************************************
+    return true;
 
   case SDL_MOUSEBUTTONUP:
 
@@ -79,15 +123,23 @@ bool processor(SDL_Event event) {
 
     return true;
 
-  // If key was pressed:
+  // UI when field of Input is pressed.
+  case SDL_TEXTINPUT:
+    // Save priority is numbers.
+    if (*event.text.text >= '0' && *event.text.text <= '9')
+      UI->push_back(*event.text.text);
+
+    return true;
+
   case SDL_KEYDOWN:
     switch (event.key.keysym.sym) {
     // Close game by key: SPACE.
     case SDLK_q:
       return false;
 
-    // Display stars.
+      // Start / stop imitation of signal.
     case SDLK_SPACE:
+      active_button_Imitate = (active_button_Imitate) ? false : true;
       return true;
 
       // if arrow DOWN is pressed.
