@@ -18,4 +18,7 @@ void drawGraph();
 // Display changes.
 void displayChanges();
 
+// Replace values.
+void changeUI();
+
 #endif // !_H_GUI

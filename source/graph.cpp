@@ -23,8 +23,8 @@ SDL_Point drawMP;
 SDL_Point relativelyPoint;
 
 // TTH of sinusoid.
-int Mz = 100;
-int Amplitude = 10000;
+int Mz = 10;
+int Amplitude = 1000;
 float Phase = 2 * M_PI;
 float curPhase = 0;
 int speed_Phase = 90;

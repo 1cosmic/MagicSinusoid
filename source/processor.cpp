@@ -1,6 +1,7 @@
 // Processor of key press, event.
 
 #include "headers/graph.hpp"
+#include "headers/gui.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keyboard.h>
@@ -12,6 +13,7 @@
 #include <cstring>
 #include <iostream>
 #include <iterator>
+#include <string>
 
 using namespace std;
 
@@ -27,6 +29,12 @@ int i;
 extern float scaleY;
 extern float scaleX;
 
+extern int Mz;
+extern int Amplitude;
+int value_Mz = 10;
+int value_A = 1000;
+bool lastChanges;
+
 SDL_Point moveCursor; // if mouse is moving.
 SDL_Point deltaMove;  // delta betwenn move Cursor & coord of Button Pressed.
 SDL_Point coordBP;    // if mouse button is pressed - write coords (for move).
@@ -35,6 +43,49 @@ string UI_Amplitude;  // UI for Amplitude.
 string *UI;           // pointer in two up lines.
 char *text;
 bool UI_run = false; // UI is start?
+int UI_count;
+
+void limitValue() {
+  // Check of UI, limit values & update display data.
+  // For enter & auto checker.
+
+  if (UI == &UI_Amplitude || UI == &UI_Mz) {
+    UI_run = false;
+    SDL_StopTextInput();
+
+    // Auto - limitation the value.
+    if (!UI->empty()) {
+
+      // Save ONLY numbers.
+
+      if (UI == &UI_Mz) {
+        value_Mz = stoi(*UI, nullptr);
+
+        if (value_Mz > 100)
+          value_Mz = 100;
+        else if (value_Mz == 0)
+          value_Mz = 1;
+
+        UI->clear();
+        UI->append(to_string(value_Mz));
+
+      } else if (UI == &UI_Amplitude) {
+        value_A = stoi(*UI, nullptr);
+
+        if (value_A > 10000)
+          value_A = 10000;
+        else if (value_A == 0)
+          value_A = 1;
+
+        UI->clear();
+        UI->append(to_string(value_A));
+      }
+
+      lastChanges = true;
+      changeUI();
+    }
+  }
+}
 
 static bool moveMouse = false; // detection of move mouse if pressed button.
 
@@ -79,35 +130,46 @@ bool processor(SDL_Event event) {
 
     // UI in field.
     // ************************************************************
+    // ************************************************************
     // Turn of UI saver.
 
     if (UI_run) {
-      UI_run = false;
-
-      SDL_StopTextInput();
-
-      // Save ONLY numbers.
-      cout << "Saved value: " << *UI << endl;
+      limitValue();
     }
 
     if (SDL_PointInRect(&coordBP, &R_field_Amplitude) == SDL_TRUE) {
       UI_run = true;
+      UI_count = 5;
 
       UI = &UI_Amplitude;
       UI->clear();
       SDL_StartTextInput();
       cout << "UI Amplitude: " << endl;
+      return true;
     }
 
     if (SDL_PointInRect(&coordBP, &R_field_Mz) == SDL_TRUE) {
       UI_run = true;
+      UI_count = 3;
 
       UI = &UI_Mz;
       UI->clear();
       SDL_StartTextInput();
 
       cout << "UI Mz: " << endl;
+      return true;
     }
+    if (SDL_PointInRect(&coordBP, &R_button_Apply) == SDL_TRUE) {
+      Mz = value_Mz;
+      Amplitude = value_A;
+
+      cout << "Set up new values." << endl;
+      cout << "Mz: " << Mz << endl;
+      cout << "Amplitude: " << Amplitude << endl;
+      return true;
+    }
+
+    // ************************************************************
     // ************************************************************
     return true;
 
@@ -126,8 +188,11 @@ bool processor(SDL_Event event) {
   // UI when field of Input is pressed.
   case SDL_TEXTINPUT:
     // Save priority is numbers.
-    if (*event.text.text >= '0' && *event.text.text <= '9')
-      UI->push_back(*event.text.text);
+
+    if (UI == &UI_Amplitude || UI == &UI_Mz)
+      if (UI->size() < UI_count)
+        if (*event.text.text >= '0' && *event.text.text <= '9')
+          UI->push_back(*event.text.text);
 
     return true;
 
@@ -137,9 +202,26 @@ bool processor(SDL_Event event) {
     case SDLK_q:
       return false;
 
+    case SDLK_BACKSPACE:
+      if (!UI->empty())
+        UI->pop_back();
+      return true;
+
       // Start / stop imitation of signal.
     case SDLK_SPACE:
       active_button_Imitate = (active_button_Imitate) ? false : true;
+      cout << "Debug." << endl;
+      return true;
+
+    case SDLK_RETURN:
+      limitValue();
+
+      Mz = value_Mz;
+      Amplitude = value_A;
+
+      cout << "Set up new values." << endl;
+      cout << "Mz: " << Mz << endl;
+      cout << "Amplitude: " << Amplitude << endl;
       return true;
 
       // if arrow DOWN is pressed.
