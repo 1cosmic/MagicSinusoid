@@ -44,13 +44,14 @@ SDL_Color colors_texts[2] = {{255, 255, 255, 255}, {0, 0, 0, 255}};
 const Uint32 FPS = 60; // FPS.
 Uint32 _FPS_Timer;     // for control of frame rate.
 
-SDL_Window *window = NULL;       // Main window of the window window
-SDL_Renderer *render = NULL;     // Renderer of the drawing.
-SDL_Surface *mainSurface = NULL; // Surface contained by the window.
-SDL_Rect R_backbround;           // rect of background.
-SDL_Rect R_ControlPanel;         // rect of control panel.
-SDL_Rect R_block_UI;             // block of UI.
-SDL_Point decorate_UI[5];        // decoration of UI.
+SDL_Window *window = NULL;         // Main window of the window window
+SDL_Renderer *render = NULL;       // Renderer of the drawing.
+SDL_Surface *mainSurface = NULL;   // Surface contained by the window.
+vector<SDL_Texture *> gC_textrure; // grub collector for destroy texture.
+SDL_Rect R_backbround;             // rect of background.
+SDL_Rect R_ControlPanel;           // rect of control panel.
+SDL_Rect R_block_UI;               // block of UI.
+SDL_Point decorate_UI[5];          // decoration of UI.
 
 SDL_Rect R_button_Apply;   // rect of button apply UI.
 SDL_Rect R_button_Imitate; // rect of button stat imitate.
@@ -124,6 +125,9 @@ SDL_Texture *createText(string text, TTF_Font *font, SDL_Color color) {
 
   // Free RAM.
   SDL_FreeSurface(surfWithText);
+
+  // Collect all textures.
+  gC_textrure.push_back(texture);
 
   return texture;
 }
@@ -320,16 +324,22 @@ void destroyGUI(void) {
       SDL_DestroyRenderer(render); // Destroy renderer.
     if (window)
       SDL_DestroyWindow(window); // Destroy window.
-
     cout << "All surface & windows was closed." << endl;
 
     // Close all loaded fonts.
     for (vector<TTF_Font *>::iterator i = fonts.begin(); i != fonts.end(); ++i)
       TTF_CloseFont(*i);
-
     fonts.clear();
-
     cout << "All fonts was closed." << endl;
+
+    // Destroy all textures.
+    int c_Texture = 0;
+
+    vector<SDL_Texture *>::iterator i_Texture;
+    for (i_Texture = gC_textrure.begin(); i_Texture != gC_textrure.end();
+         ++i_Texture, ++c_Texture)
+      SDL_DestroyTexture(*i_Texture);
+    cout << c_Texture << " textures was destroyed." << endl;
 
   }
 
