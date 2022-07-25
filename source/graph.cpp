@@ -13,6 +13,8 @@ extern SDL_Renderer *render;
 extern bool active_button_Imitate;
 extern int visionMode;
 bool displayCursor;
+float U = 0; // display U ( Amp * Mz.).
+float T = 0; // cur. value of T.
 int c1, c2, c3;
 
 // Labels for XY.
@@ -234,6 +236,8 @@ void drawGrid() {
 void drawSinusoid(int lineW, bool run) {
   // Drawing of sinusoid.
 
+  int w = 4;
+
   relatively_y = ((lineY_length * 0.5 + lineW) / float(Amplitude));
   int detalization = lineX_length * 3;
   float relatively_x = (float(lineX_length) / detalization);
@@ -270,28 +274,48 @@ void drawSinusoid(int lineW, bool run) {
     --lineW;
   }
 
+  // Display cursor point to the graphic.
   // If cursor display, draw cross.
   if (displayCursor) {
-    // Display cursor point to the graphic.
+
     SDL_Point cross[2];
 
     int relativeX = cursorX - drawMP.x;
-    if (relativeX > 0) {
 
-      detalization = lineX_length * scaleX * 0.97;
-      omega_t = Phase * Mz / detalization;
-      detalization /= 100;
+    relatively_x = lineX_length * scaleX * 0.97;
+    omega_t = Phase * Mz / relatively_x;
+    relatively_x /= 100;
+
+    // Cout to TTH block.
+    T = float(relativeX) / relatively_x;
+
+    if (relativeX > 0 && (T <= 100)) {
 
       u = Amplitude * sin(omega_t * float(relativeX) + curPhase);
 
-      cross[0].x = drawMP.x + relativeX;
-      cross[0].y = drawMP.y + u * relatively_y * 0.9 * scaleY;
+      // Cout to TTH block.
+      U = u * (-1);
 
-      cross[1].x = cross[0].x + 10;
-      cross[1].y = cross[0].y + 10;
+      // MORE BOOOLD!
+      int direction = -1;
+      lineW_start = w;
 
-      SDL_RenderDrawLines(render, cross, 2);
-      cout << "%: " << relativeX / detalization << endl;
+      SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
+      for (lineW = 0; lineW < w; ++lineW) {
+        for (int i2 = 0; i2 < 2; ++i2) {
+
+          direction = (direction > 0) ? -1 : 1;
+
+          cross[0].x =
+              drawMP.x + relativeX + lineW - lineW_start - 8 * direction;
+          cross[0].y = drawMP.y + u * relatively_y * 0.9 * scaleY - 8;
+
+          cross[1].x = cross[0].x + 16 * direction;
+          cross[1].y = cross[0].y + 16;
+
+          SDL_RenderDrawLines(render, cross, 2);
+        }
+      }
     }
   }
 }

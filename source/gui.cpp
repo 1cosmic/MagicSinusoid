@@ -21,6 +21,8 @@ extern string *UI;          // UI pointer.
 extern bool UI_run;         // UI is changed?
 extern bool lastChanges;    // if values was limited.
 extern int cursorX;         // cur.cursor X.
+extern float U;
+extern float T;
 
 // Daily (0) or night (1) mode.
 int visionMode = 1;
@@ -37,7 +39,7 @@ int colors_buttons[2][3] = {
 
 int colors_buttons_with_active[2][3] = {
     {0, 153, 255},
-    {255, 255, 0},
+    {200, 200, 200},
 };
 
 SDL_Color colors_texts_negative[2] = {{0, 0, 0, 255}, {255, 255, 255, 255}};
@@ -54,13 +56,16 @@ SDL_Rect R_backbround;             // rect of background.
 SDL_Rect R_ControlPanel;           // rect of control panel.
 SDL_Rect R_block_UI;               // block of UI.
 SDL_Rect R_block_curValues;        // block of cur. values.
-bool displayTTH;                   // display TTH?
-SDL_Point decorate_UI[5];          // decoration of UI.
+SDL_Rect decorate_TTH;
+bool displayTTH;          // display TTH?
+SDL_Rect R_label_U;       // label of U.
+SDL_Rect R_label_T;       // label of T.
+SDL_Point decorate_UI[5]; // decoration of UI.
 
 SDL_Rect R_button_Apply;   // rect of button apply UI.
 SDL_Rect R_button_Imitate; // rect of button stat imitate.
+SDL_Rect R_label_bA;       // label of UI.
 SDL_Rect R_label_UI;       // label of UI.
-SDL_Rect R_label_Imitate;  // label Imitate.
 
 SDL_Rect R_field_Mz;        // field of UI Mz.
 SDL_Rect R_field_Amplitude; // field of Amplitude.
@@ -85,6 +90,7 @@ vector<SDL_Texture *> texts_Imitation;
 vector<SDL_Texture *> texts_ImportExport;
 vector<SDL_Texture *> texts_XY;
 vector<SDL_Texture *> texts_values_X;
+vector<SDL_Texture *> texts_values_TTH;
 
 TTF_Font *loadFont(string fontName, int size) {
   // Loading fonts in RAM fot next drawing.
@@ -281,7 +287,7 @@ bool initGUI(int SCR_W, int SCR_H) {
   R_field_Mz.w = R_label_UI.w;
   R_field_Mz.h = 30;
   R_field_Mz.x = R_label_UI.x;
-  R_field_Mz.y = R_label_UI.y + R_label_UI.h + 20;
+  R_field_Mz.y = R_label_UI.y + R_label_UI.h + 10;
 
   R_field_Amplitude.w = R_field_Mz.w;
   R_field_Amplitude.h = R_field_Mz.h;
@@ -313,10 +319,17 @@ bool initGUI(int SCR_W, int SCR_H) {
   R_label_Mz.x = R_field_Mz.x + 5;
   R_label_Mz.y = R_field_Mz.y;
 
-  R_button_Apply.w = R_label_UI.w;
-  R_button_Apply.h = R_label_UI.h;
-  R_button_Apply.x = R_label_UI.x;
-  R_button_Apply.y = R_label_UI.y + R_block_UI.h;
+  // Button UI.
+  SDL_QueryTexture(texts_InputData[3], NULL, NULL, &R_button_Apply.w,
+                   &R_button_Apply.h);
+  R_button_Apply.w = R_block_UI.w + 1;
+  R_button_Apply.x = R_block_UI.x;
+  R_button_Apply.y = R_field_Amplitude.y + R_field_Amplitude.h + 20;
+
+  SDL_QueryTexture(texts_InputData[3], NULL, NULL, &R_label_bA.w,
+                   &R_label_bA.h);
+  R_label_bA.x = R_button_Apply.x + (R_button_Apply.w - R_label_bA.w) / 2;
+  R_label_bA.y = R_button_Apply.y;
 
   // Block of drawing the decorate.
   decorate_UI[0].x = R_label_UI.x - (R_block_UI.w - R_label_UI.w) / 2;
@@ -339,6 +352,9 @@ bool initGUI(int SCR_W, int SCR_H) {
   R_block_curValues.h = 40;
   R_block_curValues.x = 1000 / 2 - R_block_curValues.w / 2;
   R_block_curValues.y = 0;
+
+  decorate_TTH.w = R_block_curValues.w + 4;
+  decorate_TTH.h = R_block_curValues.h + 4;
 
   return true;
   //====================
@@ -385,7 +401,7 @@ bool drawBlock_imitation() {
   SDL_Point decorate[5];
 
   R_block.w = R_ControlPanel.w * 0.9;
-  R_block.h = R_ControlPanel.h / 4;
+  R_block.h = R_ControlPanel.h / 6;
   R_block.x = (R_ControlPanel.w - R_block.w) / 2;
   R_block.y = R_button_Apply.y + R_block.h / 2;
 
@@ -397,7 +413,7 @@ bool drawBlock_imitation() {
 
   // Block of drawing the decorate.
   int decorate_w = R_label.w;
-  int decorate_h = R_block.h;
+  int decorate_h = R_block.h / 2;
 
   R_label.w *= 0.9;
   R_label.h *= 0.9;
@@ -411,7 +427,7 @@ bool drawBlock_imitation() {
   decorate[1].y = decorate[0].y;
 
   decorate[2].x = decorate[1].x;
-  decorate[2].y = decorate[1].y + R_button_Apply.h + decorate_h / 3;
+  decorate[2].y = decorate[1].y + R_button_Apply.h + decorate_h / 2;
 
   decorate[3].x = decorate[0].x;
   decorate[3].y = decorate[2].y;
@@ -424,26 +440,36 @@ bool drawBlock_imitation() {
   //============================================================
   //============================================================
 
-  R_button_Imitate.w = R_label.w;
-  R_button_Imitate.h = R_label.h;
-  R_button_Imitate.x = R_label.x;
-  R_button_Imitate.y = R_label.y + R_button_Imitate.h + 20;
+  R_button_Imitate.w = decorate_w + 1;
+  R_button_Imitate.h = R_label.h + 2;
+  R_button_Imitate.x = decorate[4].x;
+  R_button_Imitate.y = R_label.y + decorate_h;
 
   // Display the label.
+  int *c;
+  c = colors_background[visionMode];
+
+  SDL_SetRenderDrawColor(render, c[0], c[1], c[2], 255);
   SDL_RenderFillRect(render, &R_label);
   SDL_RenderCopy(render, texts_Imitation[0], NULL, &R_label);
 
-  int *c = colors_buttons[visionMode];
-
-  // Display the button.
-  SDL_SetRenderDrawColor(render, c[0], c[1], c[2], 255);
-  SDL_RenderFillRect(render, &R_button_Imitate);
-
   // If imitated = stop, else -
-  if (active_button_Imitate)
+  if (active_button_Imitate) {
+    c = colors_buttons_with_active[visionMode];
+
+    // Display the button.
+    SDL_SetRenderDrawColor(render, c[0], c[1], c[2], 255);
+    SDL_RenderFillRect(render, &R_button_Imitate);
     SDL_RenderCopy(render, texts_Imitation[2], NULL, &R_button_Imitate);
-  else
+
+  } else {
+    c = colors_buttons[visionMode];
+
+    // Display the button.
+    SDL_SetRenderDrawColor(render, c[0], c[1], c[2], 255);
+    SDL_RenderFillRect(render, &R_button_Imitate);
     SDL_RenderCopy(render, texts_Imitation[1], NULL, &R_button_Imitate);
+  }
 }
 
 bool drawBlock_input() {
@@ -477,7 +503,7 @@ bool drawBlock_input() {
   SDL_SetRenderDrawColor(render, c[0], c[1], c[2], 255);
   SDL_RenderFillRect(render, &R_button_Apply);
 
-  SDL_RenderCopy(render, texts_InputData[3], NULL, &R_button_Apply);
+  SDL_RenderCopy(render, texts_InputData[3], NULL, &R_label_bA);
 
   // Display User values.
 
@@ -535,9 +561,54 @@ void displayChanges() {
   // Display TTH when MP in field.
   if (displayTTH) {
 
+    int *c;
+
+    // Automate cleaning textures.
+    vector<SDL_Texture *>::iterator oldValues;
+    for (oldValues = texts_values_TTH.begin();
+         oldValues != texts_values_TTH.end(); ++oldValues)
+      SDL_DestroyTexture(*oldValues);
+
+    texts_values_TTH.clear();
+    // Create & show new values.
+    string value;
+
+    value = "U: " + to_string(U);
+    texts_values_TTH.push_back(
+        createText(value, fonts[2], colors_texts_negative[visionMode]));
+    value.clear();
+
+    value = to_string(T / 100) + " T";
+    texts_values_TTH.push_back(
+        createText(value, fonts[2], colors_texts_negative[visionMode]));
+    value.clear();
+
+    decorate_TTH.x = R_block_curValues.x + 4;
+    decorate_TTH.y = R_block_curValues.y + 4;
+
+    decorate_TTH.x = R_block_curValues.x - 2;
+    decorate_TTH.y = R_block_curValues.y - 2;
+
+    SDL_RenderFillRect(render, &decorate_TTH);
+
     // Display cur. TTH.
-    SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
+    c = colors_background[visionMode];
+    SDL_SetRenderDrawColor(render, c[0], c[1], c[2], 255);
     SDL_RenderFillRect(render, &R_block_curValues);
+
+    // Values of TTH.
+    R_label_U.x = R_block_curValues.x + 5;
+    R_label_U.y = R_block_curValues.y + 5;
+    SDL_QueryTexture(texts_values_TTH[0], NULL, NULL, &R_label_U.w,
+                     &R_label_U.h);
+    SDL_RenderCopy(render, texts_values_TTH[0], NULL, &R_label_U);
+
+    // TTH: T.
+    R_label_T.x = R_block_curValues.x + 5;
+    R_label_T.y = R_block_curValues.y + R_label_U.h + 5;
+    SDL_QueryTexture(texts_values_TTH[1], NULL, NULL, &R_label_T.w,
+                     &R_label_T.h);
+    SDL_RenderCopy(render, texts_values_TTH[1], NULL, &R_label_T);
   }
 
   // Frame Rate controls.
@@ -547,8 +618,6 @@ void displayChanges() {
   }
   SDL_RenderPresent(render);
 }
-
-void drawGraph() { drawAxis(); }
 
 void drawTTH(int x, int y) {
 
@@ -561,6 +630,8 @@ void drawTTH(int x, int y) {
 
   cursorX = x - 280;
 }
+
+void drawGraph() { drawAxis(); }
 
 void setVisionMode(bool mode) {
   // Set up vision mode.
