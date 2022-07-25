@@ -15,6 +15,8 @@ bool showMain(void);
 // Draw window of graph.
 void drawGraph();
 
+void drawTTH(int x, int y);
+
 // Display changes.
 void displayChanges();
 

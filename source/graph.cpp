@@ -12,12 +12,14 @@ using namespace std;
 extern SDL_Renderer *render;
 extern bool active_button_Imitate;
 extern int visionMode;
+bool displayCursor;
 int c1, c2, c3;
 
 // Labels for XY.
-extern vector<SDL_Texture *> texts_XY; // his texts.
-SDL_Rect R_label_X;                    // label of poiner X.
-SDL_Rect R_label_Y;                    // label of poiner Y.
+SDL_Rect R_label_X;                          // label of poiner X.
+SDL_Rect R_label_Y;                          // label of poiner Y.
+extern vector<SDL_Texture *> texts_XY;       // his texts.
+extern vector<SDL_Texture *> texts_values_X; // labels for X.
 
 // Scale of XY.
 float scaleX = 1;
@@ -32,8 +34,10 @@ SDL_Point drawMP;
 SDL_Point relativelyPoint;
 
 // TTH of sinusoid.
+int cursorX;
 int Mz = 10;
 int Amplitude = 1000;
+float omega_t;
 float Phase = 2 * M_PI;
 float curPhase = 0;
 int speed_Phase = 90;
@@ -163,8 +167,8 @@ void drawGrid() {
   SDL_Point line[2];
 
   int count_V = 10 * scaleX;
-  int width_V = 0.97 * (lineX_length * scaleX / count_V);
-  int main_width_V = 0.97 * (float(lineX_length) * scaleX / 10);
+  float width_V = 0.97 * (float(lineX_length) * scaleX / count_V);
+  float main_width_V = 0.97 * (float(lineX_length) * scaleX / 10);
 
   //*********************************************
   // Draw Vertical lines.
@@ -173,7 +177,7 @@ void drawGrid() {
   line[1].y = drawMP.y + lineY_length / 2;
 
   SDL_SetRenderDrawColor(render, 150, 150, 150, 100);
-  for (int i = 0; i <= count_V; ++i) {
+  for (int i = 1; i <= count_V; ++i) {
     line[1].x = line[0].x = drawMP.x + width_V * i;
 
     SDL_RenderDrawLines(render, line, 2);
@@ -181,14 +185,25 @@ void drawGrid() {
 
   //*********************************************
   // Draw main lines.
+
+  SDL_Rect R_values_X[10];
+  SDL_Rect *p_v_X;
+
   SDL_SetRenderDrawColor(render, 255, 255, 255, 100);
-  for (int i = 0; i <= 10; i++) {
+  for (int i = 0; i < 10; i++) {
     for (int w = 0; w < 2; ++w) {
 
-      line[0].x = drawMP.x + main_width_V * i + w;
-      line[1].x = drawMP.x + main_width_V * i;
+      line[0].x = drawMP.x + main_width_V * (1 + i) + w;
+      line[1].x = drawMP.x + main_width_V * (1 + i) + w;
 
       SDL_RenderDrawLines(render, line, 2);
+
+      // Display values.
+      p_v_X = &R_values_X[i];
+      SDL_QueryTexture(texts_values_X[i], NULL, NULL, &p_v_X->w, &p_v_X->h);
+      p_v_X->x = line[1].x - p_v_X->w / 2;
+      p_v_X->y = line[1].y;
+      SDL_RenderCopy(render, texts_values_X[i], NULL, p_v_X);
     }
   }
 
@@ -196,7 +211,7 @@ void drawGrid() {
   // Draw Horisontal lines.
   // Fixed upper & lower points parallel line.
   line[0].x = drawMP.x - 5;
-  line[1].x = drawMP.x + lineX_length;
+  line[1].x = drawMP.x + 0.97 * lineX_length * scaleX;
 
   int count_H = 10;
   int width_H = 0.9 * ((relatively_y * Amplitude) / (count_H));
@@ -204,7 +219,7 @@ void drawGrid() {
 
   int direction = -1;
   SDL_SetRenderDrawColor(render, 150, 150, 150, 100);
-  for (int i = 0; i <= count_H; ++i) {
+  for (int i = 1; i <= count_H; ++i) {
     for (int i2 = 0; i2 < 2; ++i2) {
 
       // Draw line first to the down, next - to the up.
@@ -221,11 +236,10 @@ void drawSinusoid(int lineW, bool run) {
 
   relatively_y = ((lineY_length * 0.5 + lineW) / float(Amplitude));
   int detalization = lineX_length * 3;
-  float relatively_x = (float(lineX_length) / detalization) * 0.97;
+  float relatively_x = (float(lineX_length) / detalization);
 
   int i;
   float u;
-  float omega_t;
   SDL_Point points[detalization];
 
   if (run)
@@ -245,7 +259,8 @@ void drawSinusoid(int lineW, bool run) {
     for (i = 0; i < detalization; ++i) {
 
       u = Amplitude * sin(omega_t * i + curPhase);
-      points[i].x = drawMP.x + i * relatively_x * scaleX - lineW + lineW_start;
+      points[i].x =
+          drawMP.x + i * relatively_x * scaleX * 0.97 - lineW + lineW_start;
       points[i].y =
           drawMP.y + u * relatively_y * 0.9 * scaleY + lineW - lineW_start;
     }
@@ -254,7 +269,34 @@ void drawSinusoid(int lineW, bool run) {
 
     --lineW;
   }
+
+  // If cursor display, draw cross.
+  if (displayCursor) {
+    // Display cursor point to the graphic.
+    SDL_Point cross[2];
+
+    int relativeX = cursorX - drawMP.x;
+    if (relativeX > 0) {
+
+      detalization = lineX_length * scaleX * 0.97;
+      omega_t = Phase * Mz / detalization;
+      detalization /= 100;
+
+      u = Amplitude * sin(omega_t * float(relativeX) + curPhase);
+
+      cross[0].x = drawMP.x + relativeX;
+      cross[0].y = drawMP.y + u * relatively_y * 0.9 * scaleY;
+
+      cross[1].x = cross[0].x + 10;
+      cross[1].y = cross[0].y + 10;
+
+      SDL_RenderDrawLines(render, cross, 2);
+      cout << "%: " << relativeX / detalization << endl;
+    }
+  }
 }
+
+void drawCursor() {}
 
 void drawAxis() {
   // Draw all graph.
@@ -266,15 +308,17 @@ void drawAxis() {
   drawGrid();
   drawSinusoid(3, active_button_Imitate);
   drawPointerY(3);
+
+  drawCursor();
 }
 
 void setDeltaRelatively(SDL_Point move) {
   SDL_Point delta;
   delta.x = relativelyPoint.x - move.x;
-  delta.y = relativelyPoint.y - move.y;
+  // delta.y = relativelyPoint.y - move.y;
 
   if (delta.x > lineX_length * (1 - scaleX) + 30)
-    drawMP = delta;
+    drawMP.x = delta.x;
 }
 
 void fixCurrentDrawing() {

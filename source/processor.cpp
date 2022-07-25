@@ -21,6 +21,8 @@ extern SDL_Renderer *render;
 extern SDL_Rect R_button_Apply;
 extern SDL_Rect R_button_Imitate;
 extern bool active_button_Apply;
+extern bool displayTTH;
+extern bool displayCursor;
 extern bool active_button_Imitate; // check of active button Imitate.
 extern SDL_Rect R_field_Mz;        // rect of UI Mz.
 extern SDL_Rect R_field_Amplitude; // rect of Amplitude.
@@ -100,14 +102,26 @@ bool processor(SDL_Event event) {
 
   // If mouse is moving:
   case SDL_MOUSEMOTION:
+    SDL_GetMouseState(&moveCursor.x, &moveCursor.y);
 
     // If left button pressed:
     if (moveMouse) {
 
-      SDL_GetMouseState(&moveCursor.x, &moveCursor.y);
       deltaMove.x = (coordBP.x - moveCursor.x) / 2;
       deltaMove.y = (coordBP.y - moveCursor.y) / 2;
       setDeltaRelatively(deltaMove);
+    }
+
+    // If mouse in the graphic rect, draw TTH.
+    if (moveCursor.x > 280 && !moveMouse) {
+
+      drawTTH(moveCursor.x, moveCursor.y);
+      displayTTH = true;
+      displayCursor = true;
+
+    } else {
+      displayTTH = false;
+      displayCursor = false;
     }
 
     return true;

@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_render.h>
+#include <SDL2/SDL_surface.h>
 #include <SDL2/SDL_ttf.h>
 
 #include <exception>
@@ -19,6 +20,7 @@ extern string UI_Amplitude; // UI for Amplitude.
 extern string *UI;          // UI pointer.
 extern bool UI_run;         // UI is changed?
 extern bool lastChanges;    // if values was limited.
+extern int cursorX;         // cur.cursor X.
 
 // Daily (0) or night (1) mode.
 int visionMode = 1;
@@ -51,6 +53,8 @@ vector<SDL_Texture *> gC_textrure; // grub collector for destroy texture.
 SDL_Rect R_backbround;             // rect of background.
 SDL_Rect R_ControlPanel;           // rect of control panel.
 SDL_Rect R_block_UI;               // block of UI.
+SDL_Rect R_block_curValues;        // block of cur. values.
+bool displayTTH;                   // display TTH?
 SDL_Point decorate_UI[5];          // decoration of UI.
 
 SDL_Rect R_button_Apply;   // rect of button apply UI.
@@ -80,6 +84,7 @@ vector<SDL_Texture *> texts_UserValues;
 vector<SDL_Texture *> texts_Imitation;
 vector<SDL_Texture *> texts_ImportExport;
 vector<SDL_Texture *> texts_XY;
+vector<SDL_Texture *> texts_values_X;
 
 TTF_Font *loadFont(string fontName, int size) {
   // Loading fonts in RAM fot next drawing.
@@ -193,7 +198,7 @@ bool initGUI(int SCR_W, int SCR_H) {
     // Load int KTFJermilov-Solid.ttf
     fonts.push_back(loadFont("KTFJermilov-Solid.ttf", 40)); // GUI.
     fonts.push_back(loadFont("KTFJermilov-Solid.ttf", 30)); // l. XY.
-    fonts.push_back(loadFont("KTFJermilov-Solid.ttf", 20)); // numbers XY..
+    fonts.push_back(loadFont("KTFJermilov-Solid.ttf", 14)); // numbers XY..
 
     // TEXT SAVER.
     //============================================================
@@ -230,6 +235,17 @@ bool initGUI(int SCR_W, int SCR_H) {
         createText("wt", fonts[1], colors_texts_negative[visionMode]));
     texts_XY.push_back(
         createText("A", fonts[1], colors_texts_negative[visionMode]));
+
+    // Create labels for X.
+    string value;
+    for (int i = 1; i < 10; ++i) {
+      value = "0." + to_string(i) + "T";
+      texts_values_X.push_back(
+          createText(value, fonts[2], colors_texts_negative[visionMode]));
+      cout << "Value has been initialized: " << value << endl;
+    }
+    texts_values_X.push_back(
+        createText("T", fonts[2], colors_texts_negative[visionMode]));
     //============================================================
     //============================================================
   }
@@ -317,6 +333,12 @@ bool initGUI(int SCR_W, int SCR_H) {
 
   decorate_UI[4].x = decorate_UI[0].x;
   decorate_UI[4].y = decorate_UI[0].y;
+
+  // Block of cur. values between of mouse point.
+  R_block_curValues.w = 100;
+  R_block_curValues.h = 40;
+  R_block_curValues.x = 1000 / 2 - R_block_curValues.w / 2;
+  R_block_curValues.y = 0;
 
   return true;
   //====================
@@ -509,6 +531,15 @@ bool showMain(void) {
 }
 
 void displayChanges() {
+
+  // Display TTH when MP in field.
+  if (displayTTH) {
+
+    // Display cur. TTH.
+    SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
+    SDL_RenderFillRect(render, &R_block_curValues);
+  }
+
   // Frame Rate controls.
   if (SDL_GetTicks() - _FPS_Timer < FPS) {
     SDL_Delay(FPS - SDL_GetTicks() + _FPS_Timer);
@@ -518,6 +549,18 @@ void displayChanges() {
 }
 
 void drawGraph() { drawAxis(); }
+
+void drawTTH(int x, int y) {
+
+  int relX = x - 280 + 15;
+  int relY = y + 15;
+
+  R_block_curValues.x =
+      (relX + R_block_curValues.w < 1000) ? relX : 1000 - R_block_curValues.w;
+  R_block_curValues.y = relY;
+
+  cursorX = x - 280;
+}
 
 void setVisionMode(bool mode) {
   // Set up vision mode.
