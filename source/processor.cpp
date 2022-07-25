@@ -197,6 +197,7 @@ bool processor(SDL_Event event) {
     return true;
 
   case SDL_KEYDOWN:
+
     switch (event.key.keysym.sym) {
     // Close game by key: SPACE.
     case SDLK_q:

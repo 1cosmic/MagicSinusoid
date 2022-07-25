@@ -79,6 +79,7 @@ vector<SDL_Texture *> texts_InputData;
 vector<SDL_Texture *> texts_UserValues;
 vector<SDL_Texture *> texts_Imitation;
 vector<SDL_Texture *> texts_ImportExport;
+vector<SDL_Texture *> texts_XY;
 
 TTF_Font *loadFont(string fontName, int size) {
   // Loading fonts in RAM fot next drawing.
@@ -190,7 +191,9 @@ bool initGUI(int SCR_W, int SCR_H) {
   } else {
 
     // Load int KTFJermilov-Solid.ttf
-    fonts.push_back(loadFont("KTFJermilov-Solid.ttf", 40));
+    fonts.push_back(loadFont("KTFJermilov-Solid.ttf", 40)); // GUI.
+    fonts.push_back(loadFont("KTFJermilov-Solid.ttf", 30)); // l. XY.
+    fonts.push_back(loadFont("KTFJermilov-Solid.ttf", 20)); // numbers XY..
 
     // TEXT SAVER.
     //============================================================
@@ -222,6 +225,11 @@ bool initGUI(int SCR_W, int SCR_H) {
         createText("Импорт", fonts[0], colors_texts[visionMode]));
     texts_ImportExport.push_back(
         createText("Экспорт", fonts[0], colors_texts[visionMode]));
+
+    texts_XY.push_back(
+        createText("wt", fonts[1], colors_texts_negative[visionMode]));
+    texts_XY.push_back(
+        createText("A", fonts[1], colors_texts_negative[visionMode]));
     //============================================================
     //============================================================
   }
@@ -509,7 +517,7 @@ void displayChanges() {
   SDL_RenderPresent(render);
 }
 
-void drawGraph() { drawAxis(visionMode); }
+void drawGraph() { drawAxis(); }
 
 void setVisionMode(bool mode) {
   // Set up vision mode.

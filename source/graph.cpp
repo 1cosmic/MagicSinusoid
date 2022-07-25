@@ -5,15 +5,24 @@
 #include <SDL2/SDL_ttf.h>
 #include <cmath>
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
 extern SDL_Renderer *render;
 extern bool active_button_Imitate;
+extern int visionMode;
+int c1, c2, c3;
+
+// Labels for XY.
+extern vector<SDL_Texture *> texts_XY; // his texts.
+SDL_Rect R_label_X;                    // label of poiner X.
+SDL_Rect R_label_Y;                    // label of poiner Y.
 
 // Scale of XY.
 float scaleX = 1;
 float scaleY = 1;
+float relatively_y;
 
 SDL_Rect R_graph;
 int lineX_length;
@@ -46,6 +55,10 @@ void initGraph(int W, int H) {
   drawMP.y = R_graph.h / 2;
 
   relativelyPoint = drawMP;
+
+  // Set label for Axis.
+  SDL_QueryTexture(texts_XY[0], NULL, NULL, &R_label_X.w, &R_label_X.h);
+  SDL_QueryTexture(texts_XY[1], NULL, NULL, &R_label_Y.w, &R_label_Y.h);
 }
 
 void drawPointerX(int lineW) {
@@ -59,6 +72,12 @@ void drawPointerX(int lineW) {
   line.w = lineX_length * scaleX;
   line.x = drawMP.x;
   line.y = drawMP.y - lineW / 2;
+
+  // Set up colors. For Axis.
+  c1 = colors_Axis[visionMode][0];
+  c2 = colors_Axis[visionMode][1];
+  c3 = colors_Axis[visionMode][2];
+  SDL_SetRenderDrawColor(render, c1, c2, c3, SDL_ALPHA_OPAQUE);
 
   // Draw line.
   SDL_RenderFillRect(render, &line);
@@ -82,6 +101,11 @@ void drawPointerX(int lineW) {
 
     SDL_RenderDrawLines(render, arrow, 3);
   }
+
+  // Set label.
+  R_label_X.x = arrow[1].x - R_label_X.w * 0.8;
+  R_label_X.y = arrow[1].y + 10;
+  SDL_RenderCopy(render, texts_XY[0], NULL, &R_label_X);
 }
 
 void drawPointerY(int lineW) {
@@ -95,6 +119,12 @@ void drawPointerY(int lineW) {
   line.w = lineW;
   line.x = drawMP.x - lineW / 2;
   line.y = drawMP.y - line.h / 2;
+
+  // Set up colors. For Axis.
+  c1 = colors_Axis[visionMode][0];
+  c2 = colors_Axis[visionMode][1];
+  c3 = colors_Axis[visionMode][2];
+  SDL_SetRenderDrawColor(render, c2, c2, c3, SDL_ALPHA_OPAQUE);
 
   // Draw line.
   SDL_RenderFillRect(render, &line);
@@ -118,24 +148,80 @@ void drawPointerY(int lineW) {
 
     SDL_RenderDrawLines(render, arrow, 3);
   }
+
+  // Set label.
+  R_label_Y.x = arrow[1].x + R_label_Y.w;
+  R_label_Y.y = arrow[1].y - 5;
+  SDL_RenderCopy(render, texts_XY[1], NULL, &R_label_Y);
 }
 
 void drawGrid() {
   // Drawing of grid for analys.
-  int length = 3000;
 
-  while (length > 0) {
+  extern float relatively_y;
 
-    length -= lineX_length / 10;
+  SDL_Point line[2];
+
+  int count_V = 10 * scaleX;
+  int width_V = 0.97 * (lineX_length * scaleX / count_V);
+  int main_width_V = 0.97 * (float(lineX_length) * scaleX / 10);
+
+  //*********************************************
+  // Draw Vertical lines.
+  // Fixed upper & lower points parallel line.
+  line[0].y = drawMP.y - lineY_length / 2;
+  line[1].y = drawMP.y + lineY_length / 2;
+
+  SDL_SetRenderDrawColor(render, 150, 150, 150, 100);
+  for (int i = 0; i <= count_V; ++i) {
+    line[1].x = line[0].x = drawMP.x + width_V * i;
+
+    SDL_RenderDrawLines(render, line, 2);
+  }
+
+  //*********************************************
+  // Draw main lines.
+  SDL_SetRenderDrawColor(render, 255, 255, 255, 100);
+  for (int i = 0; i <= 10; i++) {
+    for (int w = 0; w < 2; ++w) {
+
+      line[0].x = drawMP.x + main_width_V * i + w;
+      line[1].x = drawMP.x + main_width_V * i;
+
+      SDL_RenderDrawLines(render, line, 2);
+    }
+  }
+
+  //*********************************************
+  // Draw Horisontal lines.
+  // Fixed upper & lower points parallel line.
+  line[0].x = drawMP.x - 5;
+  line[1].x = drawMP.x + lineX_length;
+
+  int count_H = 10;
+  int width_H = 0.9 * ((relatively_y * Amplitude) / (count_H));
+  // int main_width_H = 0.96 * (float(lineY_length) / 10);
+
+  int direction = -1;
+  SDL_SetRenderDrawColor(render, 150, 150, 150, 100);
+  for (int i = 0; i <= count_H; ++i) {
+    for (int i2 = 0; i2 < 2; ++i2) {
+
+      // Draw line first to the down, next - to the up.
+      direction = (direction > 0) ? -1 : 1;
+      line[1].y = line[0].y = drawMP.y + direction * width_H * i;
+
+      SDL_RenderDrawLines(render, line, 2);
+    }
   }
 }
 
 void drawSinusoid(int lineW, bool run) {
   // Drawing of sinusoid.
 
+  relatively_y = ((lineY_length * 0.5 + lineW) / float(Amplitude));
   int detalization = lineX_length * 3;
   float relatively_x = (float(lineX_length) / detalization) * 0.97;
-  float relatively_y = (lineY_length * 0.5 / float(Amplitude)) * 0.9;
 
   int i;
   float u;
@@ -145,6 +231,13 @@ void drawSinusoid(int lineW, bool run) {
   if (run)
     curPhase = (curPhase == 0) ? Phase : curPhase - Phase / speed_Phase;
 
+  // Set up colors. For sinusoid.
+  c1 = colors_Sinusoid[visionMode][0];
+  c2 = colors_Sinusoid[visionMode][1];
+  c3 = colors_Sinusoid[visionMode][2];
+
+  int lineW_start = lineW / 2; // compensation offset && centering.
+  SDL_SetRenderDrawColor(render, c1, c2, c3, SDL_ALPHA_OPAQUE);
   while (lineW > 0) {
 
     omega_t = Phase * Mz / detalization;
@@ -152,8 +245,9 @@ void drawSinusoid(int lineW, bool run) {
     for (i = 0; i < detalization; ++i) {
 
       u = Amplitude * sin(omega_t * i + curPhase);
-      points[i].x = drawMP.x + i * relatively_x * scaleX + lineW;
-      points[i].y = drawMP.y + u * relatively_y * scaleY;
+      points[i].x = drawMP.x + i * relatively_x * scaleX - lineW + lineW_start;
+      points[i].y =
+          drawMP.y + u * relatively_y * 0.9 * scaleY + lineW - lineW_start;
     }
 
     SDL_RenderDrawLines(render, points, detalization);
@@ -162,28 +256,16 @@ void drawSinusoid(int lineW, bool run) {
   }
 }
 
-void drawAxis(int visionMode) {
+void drawAxis() {
+  // Draw all graph.
 
-  // Check of night vision.
-  int c1, c2, c3;
-
-  // Set up colors. For Axis.
-  c1 = colors_Axis[visionMode][0];
-  c2 = colors_Axis[visionMode][1];
-  c3 = colors_Axis[visionMode][2];
-  SDL_SetRenderDrawColor(render, c1, c2, c3, SDL_ALPHA_OPAQUE);
   SDL_RenderSetViewport(render, &R_graph);
 
+  // Draw main graph.
   drawPointerX(3);
-  drawPointerY(3);
-
-  // Set up colors. For sinusoid.
-  c1 = colors_Sinusoid[visionMode][0];
-  c2 = colors_Sinusoid[visionMode][1];
-  c3 = colors_Sinusoid[visionMode][2];
-  SDL_SetRenderDrawColor(render, c1, c2, c3, SDL_ALPHA_OPAQUE);
-
+  drawGrid();
   drawSinusoid(3, active_button_Imitate);
+  drawPointerY(3);
 }
 
 void setDeltaRelatively(SDL_Point move) {

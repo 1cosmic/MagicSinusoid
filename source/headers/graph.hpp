@@ -11,6 +11,6 @@ bool setDeltaRelatively(SDL_Point deltaMove);
 void setCurrentPointAsMain();
 
 void fixCurrentDrawing();
-void drawAxis(int colorMode);
+void drawAxis();
 
 #endif // GRAPH_HPP
