@@ -204,7 +204,7 @@ bool initGUI(int SCR_W, int SCR_H) {
     // Load int KTFJermilov-Solid.ttf
     fonts.push_back(loadFont("KTFJermilov-Solid.ttf", 40)); // GUI.
     fonts.push_back(loadFont("KTFJermilov-Solid.ttf", 30)); // l. XY.
-    fonts.push_back(loadFont("KTFJermilov-Solid.ttf", 14)); // numbers XY..
+    fonts.push_back(loadFont("KTFJermilov-Solid.ttf", 16)); // numbers XY..
 
     // TEXT SAVER.
     //============================================================
@@ -240,7 +240,7 @@ bool initGUI(int SCR_W, int SCR_H) {
     texts_XY.push_back(
         createText("wt", fonts[1], colors_texts_negative[visionMode]));
     texts_XY.push_back(
-        createText("A", fonts[1], colors_texts_negative[visionMode]));
+        createText("U", fonts[1], colors_texts_negative[visionMode]));
 
     // Create labels for X.
     string value;
@@ -301,9 +301,6 @@ bool initGUI(int SCR_W, int SCR_H) {
   R_label_A.y = R_field_Amplitude.y;
 
   //==============================================================================================================================================================================================================================================================================
-  // Доделать отображение вводимых данных пользователя и приступить к созданию
-  // мини окна с тек. данными точки графика.
-  //==============================================================================================================================================================================================================================================================================
 
   // User data valbeues of Amplitude.
   SDL_QueryTexture(texts_UserValues[1], NULL, NULL, &R_data_A.w, &R_data_A.h);
@@ -348,8 +345,8 @@ bool initGUI(int SCR_W, int SCR_H) {
   decorate_UI[4].y = decorate_UI[0].y;
 
   // Block of cur. values between of mouse point.
-  R_block_curValues.w = 100;
-  R_block_curValues.h = 40;
+  R_block_curValues.w = 115;
+  R_block_curValues.h = 55;
   R_block_curValues.x = 1000 / 2 - R_block_curValues.w / 2;
   R_block_curValues.y = 0;
 
@@ -385,6 +382,8 @@ void destroyGUI(void) {
     for (i_Texture = gC_textrure.begin(); i_Texture != gC_textrure.end();
          ++i_Texture, ++c_Texture)
       SDL_DestroyTexture(*i_Texture);
+
+    gC_textrure.clear();
     cout << c_Texture << " textures was destroyed." << endl;
 
   }
