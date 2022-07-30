@@ -7,6 +7,8 @@
 #include <iostream>
 #include <vector>
 
+#define DETALIZATION 3000
+
 using namespace std;
 
 extern SDL_Renderer *render;
@@ -27,13 +29,14 @@ extern vector<SDL_Texture *> texts_values_X; // labels for X.
 float scaleX = 1;
 float scaleY = 1;
 float relatively_y;
-
+float relatively_x;
 SDL_Rect R_graph;
 int lineX_length;
 int lineY_length;
 
 SDL_Point drawMP;
 SDL_Point relativelyPoint;
+SDL_Point pointsToCalc[DETALIZATION];
 
 // TTH of sinusoid.
 int cursorX;
@@ -42,7 +45,7 @@ int Amplitude = 1000;
 float omega_t;
 float Phase = 2 * M_PI;
 float curPhase = 0;
-int speed_Phase = 90;
+int speed_Phase = 404;
 
 // First color - daily, second - nightly.
 int colors_Axis[2][3] = {{0, 0, 0}, {255, 255, 255}};
@@ -233,43 +236,59 @@ void drawGrid() {
   }
 }
 
-void drawSinusoid(int lineW, bool run) {
-  // Drawing of sinusoid.
+// ============================================================
+// ============================================================
+// ============================================================
+// ============================================================
 
-  int w = 4;
+void calcPosition(SDL_Point &calcPoint, SDL_Point &drawPoint) {
+  // Calc pos. relatively drawMP & scales.
 
-  relatively_y = ((lineY_length * 0.5 + lineW) / float(Amplitude));
-  int detalization = lineX_length * 3;
-  float relatively_x = (float(lineX_length) / detalization);
+  drawPoint.x = drawMP.x + calcPoint.x * relatively_x * scaleX * 0.97;
+  drawPoint.y = drawMP.y + calcPoint.y * relatively_y * 0.9 * scaleY;
+}
 
-  int i;
-  float u;
-  SDL_Point points[detalization];
+void calcPoints(bool run) {
+  // Calc pos. relatively drawMP & scales.
 
+  omega_t = Phase * Mz / DETALIZATION;
+
+  // If run - move points.
   if (run)
     curPhase = (curPhase == 0) ? Phase : curPhase - Phase / speed_Phase;
+
+  // Fill array.
+  for (int i = 0; i < DETALIZATION; ++i) {
+    pointsToCalc[i].x = i;
+    pointsToCalc[i].y = Amplitude * sin(omega_t * i + curPhase);
+  }
+}
+
+void drawPoints(int lineW) {
+  // Draw calc points.
+  SDL_Point pointsToDraw[DETALIZATION];
+  int lineW_start = lineW / 2; // compensation offset && centering.
+  int w = lineW;
 
   // Set up colors. For sinusoid.
   c1 = colors_Sinusoid[visionMode][0];
   c2 = colors_Sinusoid[visionMode][1];
   c3 = colors_Sinusoid[visionMode][2];
-
-  int lineW_start = lineW / 2; // compensation offset && centering.
   SDL_SetRenderDrawColor(render, c1, c2, c3, SDL_ALPHA_OPAQUE);
+
+  // More booold!
   while (lineW > 0) {
 
-    omega_t = Phase * Mz / detalization;
+    for (int i = 0; i < DETALIZATION; ++i) {
 
-    for (i = 0; i < detalization; ++i) {
+      calcPosition(pointsToCalc[i], pointsToDraw[i]);
 
-      u = Amplitude * sin(omega_t * i + curPhase);
-      points[i].x =
-          drawMP.x + i * relatively_x * scaleX * 0.97 - lineW + lineW_start;
-      points[i].y =
-          drawMP.y + u * relatively_y * 0.9 * scaleY + lineW - lineW_start;
+      // Add offest (for centering Sinusoid rel. axis).
+      pointsToDraw[i].x += (lineW_start - lineW);
+      pointsToDraw[i].y += (lineW - lineW_start);
     }
 
-    SDL_RenderDrawLines(render, points, detalization);
+    SDL_RenderDrawLines(render, pointsToDraw, DETALIZATION);
 
     --lineW;
   }
@@ -281,6 +300,7 @@ void drawSinusoid(int lineW, bool run) {
     SDL_Point cross[2];
 
     int relativeX = cursorX - drawMP.x;
+    float u;
 
     relatively_x = lineX_length * scaleX * 0.97;
     omega_t = Phase * Mz / relatively_x;
@@ -320,20 +340,26 @@ void drawSinusoid(int lineW, bool run) {
   }
 }
 
-void drawCursor() {}
-
 void drawAxis() {
   // Draw all graph.
 
+  int lineW = 3; // bold.
+
   SDL_RenderSetViewport(render, &R_graph);
 
-  // Draw main graph.
-  drawPointerX(3);
-  drawGrid();
-  drawSinusoid(3, active_button_Imitate);
-  drawPointerY(3);
+  // Calcutate relatively values (for scales).
+  relatively_y = ((lineY_length * 0.5 + lineW) / float(Amplitude));
+  relatively_x = (float(lineX_length) / DETALIZATION);
 
-  drawCursor();
+  // Draw main graph.
+  drawPointerX(lineW);
+  drawGrid();
+
+  // Sinusoid.
+  calcPoints(active_button_Imitate);
+  drawPoints(lineW);
+  /////////////
+  drawPointerY(lineW);
 }
 
 void setDeltaRelatively(SDL_Point move) {

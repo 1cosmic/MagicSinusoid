@@ -2,6 +2,8 @@
 
 #include "headers/graph.hpp"
 #include "headers/gui.hpp"
+#include "headers/loader.hpp"
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_keyboard.h>
@@ -10,6 +12,7 @@
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_stdinc.h>
 #include <SDL2/SDL_timer.h>
+
 #include <cstring>
 #include <iostream>
 #include <iterator>
@@ -217,6 +220,16 @@ bool processor(SDL_Event event) {
     case SDLK_q:
       return false;
 
+    case SDLK_l:
+      loadData("test.txt");
+      cout << "Debug." << endl;
+      return true;
+
+    case SDLK_s:
+      uploadData("test.txt");
+      cout << "Debug." << endl;
+      return true;
+
     case SDLK_BACKSPACE:
       if (!UI->empty())
         UI->pop_back();
@@ -225,7 +238,6 @@ bool processor(SDL_Event event) {
       // Start / stop imitation of signal.
     case SDLK_SPACE:
       active_button_Imitate = (active_button_Imitate) ? false : true;
-      cout << "Debug." << endl;
       return true;
 
     case SDLK_RETURN:
