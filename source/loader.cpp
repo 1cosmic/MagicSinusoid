@@ -12,7 +12,7 @@ using namespace std;
 namespace fs = std::filesystem;
 
 // Connect points & other TTH of Sinusoid.
-extern SDL_Point points[DETALIZATION];
+extern pair<int, float> pointsToCalc[DETALIZATION];
 extern int Mz;
 extern int Amplitude;
 extern float omega_t;
@@ -45,11 +45,12 @@ bool uploadData(string fileName) {
   // Indent.
   uFile << endl;
 
+  int i;
   // For i generate value of U.
-  for (int i = 0; i < DETALIZATION; ++i) {
+  for (i = 0; i < DETALIZATION; ++i) {
     uFile << Amplitude * sin(omega_t * i + curPhase) << endl;
   }
-  cout << "All points was uploaded." << endl;
+  cout << i << " points was uploaded." << endl;
 
   // Close file.
   uFile.close();
@@ -69,29 +70,43 @@ bool loadData(string fileName) {
 
   // Create of linker.
   // If file exists, clear here.
-  ifstream uFile(filePath.u8string(), ios_base::in);
+  ifstream lFile(filePath.u8string(), ios_base::in);
 
   // Checker of success opened file.
-  if (!uFile.is_open()) {
+  if (!lFile.is_open()) {
     cout << "I don`t open the file for save: " << filePath << endl;
     return false;
   }
 
+  // Replace main values.
+  cout << "Replace values." << endl;
+  cout << "curPhase: " << curPhase << " Mz: " << Mz << " A: " << Amplitude
+       << endl;
+  //
+  lFile >> curPhase;
+  lFile >> Mz;
+  lFile >> Amplitude;
+  //
+  cout << "curPhase: " << curPhase << " Mz: " << Mz << " A: " << Amplitude
+       << endl
+       << endl;
+  // **********************
+
   // Load values.
-  // for (uFile >> valueBuf; !uFile.eof(); uFile >> valueBuf) {
-  //   cout << "I wish read value: " << valueBuf << endl;
-  // }
+  int i;
 
-  uFile >> valueBuf;
-  cout << "I wish read value: " << valueBuf << endl;
-  uFile >> valueBuf;
-  cout << "I wish read value: " << valueBuf << endl;
-  uFile >> valueBuf;
-  cout << "I wish read value: " << valueBuf << endl;
-  uFile >> valueBuf;
-  cout << "I wish read value: " << valueBuf << endl;
+  // Escape Space.
+  lFile >> valueBuf;
 
-  uFile.close();
+  // Load all mainpoints.
+  for (i = 0; !lFile.eof(); ++i) {
+    pointsToCalc[i].first = i;
+    lFile >> pointsToCalc[i].second;
+  }
+
+  // Close & information.
+  lFile.close();
+  cout << "Counter of loaded values: " << i << endl;
 
   return true;
 }

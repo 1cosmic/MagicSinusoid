@@ -3,6 +3,7 @@
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_ttf.h>
+
 #include <cmath>
 #include <iostream>
 #include <vector>
@@ -36,7 +37,7 @@ int lineY_length;
 
 SDL_Point drawMP;
 SDL_Point relativelyPoint;
-SDL_Point pointsToCalc[DETALIZATION];
+pair<int, float> pointsToCalc[DETALIZATION];
 
 // TTH of sinusoid.
 int cursorX;
@@ -49,7 +50,7 @@ int speed_Phase = 404;
 
 // First color - daily, second - nightly.
 int colors_Axis[2][3] = {{0, 0, 0}, {255, 255, 255}};
-int colors_Sinusoid[2][3] = {{0, 200, 255}, {255, 204, 0}};
+int colors_Sinusoid[2][3] = {{0, 102, 255}, {255, 180, 0}};
 
 void initGraph(int W, int H) {
   R_graph.w = 1000;
@@ -194,7 +195,11 @@ void drawGrid() {
   SDL_Rect R_values_X[10];
   SDL_Rect *p_v_X;
 
-  SDL_SetRenderDrawColor(render, 255, 255, 255, 100);
+  int c1 = colors_Axis[visionMode][0];
+  int c2 = colors_Axis[visionMode][1];
+  int c3 = colors_Axis[visionMode][2];
+
+  SDL_SetRenderDrawColor(render, c1, c2, c3, 100);
   for (int i = 0; i < 10; i++) {
     for (int w = 0; w < 2; ++w) {
 
@@ -215,9 +220,7 @@ void drawGrid() {
   //*********************************************
   // Draw Horisontal lines.
   // Fixed upper & lower points parallel line.
-  line[0].x = drawMP.x - 5;
-  line[1].x = drawMP.x + 0.97 * lineX_length * scaleX;
-
+  line[0].x = drawMP.x - 5; line[1].x = drawMP.x + 0.97 * lineX_length * scaleX;
   int count_H = 10;
   int width_H = 0.9 * ((relatively_y * Amplitude) / (count_H));
   // int main_width_H = 0.96 * (float(lineY_length) / 10);
@@ -241,11 +244,11 @@ void drawGrid() {
 // ============================================================
 // ============================================================
 
-void calcPosition(SDL_Point &calcPoint, SDL_Point &drawPoint) {
+void calcPosition(pair<int, float> &calcPoint, SDL_Point &drawPoint) {
   // Calc pos. relatively drawMP & scales.
 
-  drawPoint.x = drawMP.x + calcPoint.x * relatively_x * scaleX * 0.97;
-  drawPoint.y = drawMP.y + calcPoint.y * relatively_y * 0.9 * scaleY;
+  drawPoint.x = drawMP.x + calcPoint.first * relatively_x * scaleX * 0.97;
+  drawPoint.y = drawMP.y + calcPoint.second * relatively_y * 0.9 * scaleY;
 }
 
 void calcPoints(bool run) {
@@ -259,8 +262,8 @@ void calcPoints(bool run) {
 
   // Fill array.
   for (int i = 0; i < DETALIZATION; ++i) {
-    pointsToCalc[i].x = i;
-    pointsToCalc[i].y = Amplitude * sin(omega_t * i + curPhase);
+    pointsToCalc[i].first = i;
+    pointsToCalc[i].second = Amplitude * sin(omega_t * i + curPhase);
   }
 }
 
@@ -320,7 +323,12 @@ void drawPoints(int lineW) {
       int direction = -1;
       lineW_start = w;
 
-      SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
+      // Set up colors. For sinusoid.
+      c1 = colors_Axis[visionMode][0];
+      c2 = colors_Axis[visionMode][1];
+      c3 = colors_Axis[visionMode][2];
+      SDL_SetRenderDrawColor(render, c1, c2, c3, SDL_ALPHA_OPAQUE);
+
       for (lineW = 0; lineW < w; ++lineW) {
         for (int i2 = 0; i2 < 2; ++i2) {
 

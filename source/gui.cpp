@@ -1,5 +1,7 @@
 #include "headers/graph.hpp"
+
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_render.h>
@@ -30,32 +32,41 @@ int visionMode = 1;
 // First color - daily, second - nightly.
 int colors_background[2][3] = {
     {255, 255, 255},
+    {0, 0, 0},
+};
+
+// Color of input fields.
+int colors_fields[2][3] = {
+    {0, 0, 0},
+    {255, 255, 255},
 };
 // Color block of buttons.
 int colors_buttons[2][3] = {
     {0, 102, 255},
-    {255, 204, 0},
+    {0, 102, 255},
 };
 
 int colors_buttons_with_active[2][3] = {
-    {0, 153, 255},
+    {100, 100, 100},
     {200, 200, 200},
 };
 
-SDL_Color colors_texts_negative[2] = {{0, 0, 0, 255}, {255, 255, 255, 255}};
+SDL_Color colors_texts_negative[2] = {{0, 0, 0, 255},
+                                      {255, 255, 255, 255}};
 SDL_Color colors_texts[2] = {{255, 255, 255, 255}, {0, 0, 0, 255}};
 
 const Uint32 FPS = 60; // FPS.
 Uint32 _FPS_Timer;     // for control of frame rate.
 
-SDL_Window *window = NULL;         // Main window of the window window
-SDL_Renderer *render = NULL;       // Renderer of the drawing.
-SDL_Surface *mainSurface = NULL;   // Surface contained by the window.
-vector<SDL_Texture *> gC_textrure; // grub collector for destroy texture.
-SDL_Rect R_backbround;             // rect of background.
-SDL_Rect R_ControlPanel;           // rect of control panel.
-SDL_Rect R_block_UI;               // block of UI.
-SDL_Rect R_block_curValues;        // block of cur. values.
+SDL_Window *window = NULL;        // Main window of the window window
+SDL_Renderer *render = NULL;      // Renderer of the drawing.
+SDL_Surface *mainSurface = NULL;  // Surface contained by the window.
+vector<SDL_Texture *> gC_texture; // grub collector for destroy texture.
+SDL_Rect R_backbround;            // rect of background.
+SDL_Rect R_ControlPanel;          // rect of control panel.
+SDL_Rect R_block_UI;              // block of UI.
+SDL_Rect R_block_curValues;       // block of cur. values.
+SDL_Rect R_block_loadUpload;      // block of load / upload.
 SDL_Rect decorate_TTH;
 bool displayTTH;          // display TTH?
 SDL_Rect R_label_U;       // label of U.
@@ -64,6 +75,9 @@ SDL_Point decorate_UI[5]; // decoration of UI.
 
 SDL_Rect R_button_Apply;   // rect of button apply UI.
 SDL_Rect R_button_Imitate; // rect of button stat imitate.
+SDL_Rect R_button_load;    // rect of button load.
+SDL_Rect R_button_upload;  // rect of button upload.
+SDL_Rect R_button_visionMode;  // rect of button set vision mode.
 SDL_Rect R_label_bA;       // label of UI.
 SDL_Rect R_label_UI;       // label of UI.
 
@@ -82,6 +96,11 @@ const fs::path cur_path =
     fs::current_path().parent_path();         // get cur/parent path.
 const fs::path src_path = cur_path / "fonts"; // images path.
 
+// Icon loading.
+vector<SDL_Texture *> icons_load;
+vector<SDL_Texture *> icons_upload;
+vector<SDL_Texture *> icons_visionMode;
+
 // TTF loading.
 vector<TTF_Font *> fonts;
 vector<SDL_Texture *> texts_InputData;
@@ -91,6 +110,31 @@ vector<SDL_Texture *> texts_ImportExport;
 vector<SDL_Texture *> texts_XY;
 vector<SDL_Texture *> texts_values_X;
 vector<SDL_Texture *> texts_values_TTH;
+
+SDL_Texture *loadIcon(string path) {
+  // Load in RAM image of texture.
+
+  SDL_Surface *image = nullptr;
+  SDL_Texture *texture = nullptr;
+  fs::path iconDir = cur_path / "images" / path;
+
+  image = IMG_Load(iconDir.c_str()); // load image.
+
+  if (image) {
+    texture =
+        SDL_CreateTextureFromSurface(render,
+                                     image); // convert imaopL:e -> texture.
+    SDL_FreeSurface(image);                  // cleaner.
+
+    gC_texture.push_back(texture); // mark texture for cleaner.
+
+  } else {
+    printf("Texture | %s | is not loaded. Error: %s", path.c_str(),
+           SDL_GetError());
+  }
+
+  return texture;
+}
 
 TTF_Font *loadFont(string fontName, int size) {
   // Loading fonts in RAM fot next drawing.
@@ -139,10 +183,85 @@ SDL_Texture *createText(string text, TTF_Font *font, SDL_Color color) {
   SDL_FreeSurface(surfWithText);
 
   // Collect all textures.
-  gC_textrure.push_back(texture);
+  gC_texture.push_back(texture);
 
   return texture;
 }
+
+void setLabels() {
+
+  vector<SDL_Texture *>::iterator label;
+
+  for (label = texts_InputData.begin(); label != texts_InputData.end(); ++label) {
+      SDL_DestroyTexture(*label);
+    }
+  texts_InputData.clear();
+
+  for (label = texts_UserValues.begin(); label != texts_UserValues.end(); ++label) {
+      SDL_DestroyTexture(*label);
+    }
+  texts_UserValues.clear();
+
+  for (label = texts_Imitation.begin(); label != texts_Imitation.end(); ++label) {
+      SDL_DestroyTexture(*label);
+    }
+  texts_Imitation.clear();
+
+  for (label = texts_XY.begin(); label != texts_XY.end(); ++label) {
+      SDL_DestroyTexture(*label);
+    }
+  texts_XY.clear();
+
+    texts_InputData.push_back(
+        createText("Ввод данных", fonts[0], colors_texts_negative[visionMode]));
+    texts_InputData.push_back(
+        createText("Частота", fonts[0], colors_texts[visionMode]));
+    texts_InputData.push_back(
+        createText("Амплитуда", fonts[0], colors_texts[visionMode]));
+    texts_InputData.push_back(
+        createText("Применить", fonts[0], colors_texts[visionMode]));
+
+    texts_UserValues.push_back(
+        createText("10", fonts[0], colors_texts[visionMode]));
+    texts_UserValues.push_back(
+        createText("1000", fonts[0], colors_texts[visionMode]));
+
+    texts_Imitation.push_back(
+        createText("Имитация", fonts[0], colors_texts_negative[visionMode]));
+    texts_Imitation.push_back(
+        createText("Запустить", fonts[0], colors_texts[visionMode]));
+    texts_Imitation.push_back(
+        createText("Остановить", fonts[0], colors_texts[visionMode]));
+
+    texts_ImportExport.push_back(
+        createText("Импорт", fonts[0], colors_texts[visionMode]));
+    texts_ImportExport.push_back(
+        createText("Экспорт", fonts[0], colors_texts[visionMode]));
+
+    texts_XY.push_back(
+        createText("wt", fonts[1], colors_texts_negative[visionMode]));
+    texts_XY.push_back(
+        createText("U", fonts[1], colors_texts_negative[visionMode]));
+
+
+    for(label = texts_values_X.begin(); label != texts_values_X.end(); ++label) {
+        SDL_DestroyTexture(*label);
+      }
+    texts_values_X.clear();
+
+    // Create labels for X.
+    string value;
+    for (int i = 1; i < 10; ++i) {
+      value = "0." + to_string(i) + "T";
+      texts_values_X.push_back(
+          createText(value, fonts[2], colors_texts_negative[visionMode]));
+      cout << "Value has been initialized: " << value << endl;
+    }
+    texts_values_X.push_back(
+        createText("T", fonts[2], colors_texts_negative[visionMode]));
+    //============================================================
+    //============================================================
+    }
 
 void changeUI() {
   // Change UI text in field.
@@ -208,52 +327,26 @@ bool initGUI(int SCR_W, int SCR_H) {
 
     // TEXT SAVER.
     //============================================================
+    setLabels();
     //============================================================
-
-    // Create test text.
-    texts_InputData.push_back(
-        createText("Ввод данных", fonts[0], colors_texts_negative[visionMode]));
-    texts_InputData.push_back(
-        createText("Частота", fonts[0], colors_texts[visionMode]));
-    texts_InputData.push_back(
-        createText("Амплитуда", fonts[0], colors_texts[visionMode]));
-    texts_InputData.push_back(
-        createText("Применить", fonts[0], colors_texts[visionMode]));
-
-    texts_UserValues.push_back(
-        createText("10", fonts[0], colors_texts[visionMode]));
-    texts_UserValues.push_back(
-        createText("1000", fonts[0], colors_texts[visionMode]));
-
-    texts_Imitation.push_back(
-        createText("Имитация", fonts[0], colors_texts_negative[visionMode]));
-    texts_Imitation.push_back(
-        createText("Запустить", fonts[0], colors_texts[visionMode]));
-    texts_Imitation.push_back(
-        createText("Остановить", fonts[0], colors_texts[visionMode]));
-
-    texts_ImportExport.push_back(
-        createText("Импорт", fonts[0], colors_texts[visionMode]));
-    texts_ImportExport.push_back(
-        createText("Экспорт", fonts[0], colors_texts[visionMode]));
-
-    texts_XY.push_back(
-        createText("wt", fonts[1], colors_texts_negative[visionMode]));
-    texts_XY.push_back(
-        createText("U", fonts[1], colors_texts_negative[visionMode]));
-
-    // Create labels for X.
-    string value;
-    for (int i = 1; i < 10; ++i) {
-      value = "0." + to_string(i) + "T";
-      texts_values_X.push_back(
-          createText(value, fonts[2], colors_texts_negative[visionMode]));
-      cout << "Value has been initialized: " << value << endl;
     }
-    texts_values_X.push_back(
-        createText("T", fonts[2], colors_texts_negative[visionMode]));
-    //============================================================
-    //============================================================
+
+  if (!IMG_Init(IMG_INIT_PNG)) {
+    cout << "Не удалось инициализировать Icon-систему." << endl;
+    cout << "Причина: " << IMG_GetError() << endl;
+  } else {
+
+    // MAIN LOADER PNG BLOCK.
+    icons_load.push_back(loadIcon("load_day.png"));
+    icons_load.push_back(loadIcon("load_night.png"));
+
+    icons_upload.push_back(loadIcon("upload_day.png"));
+    icons_upload.push_back(loadIcon("upload_night.png"));
+
+    icons_visionMode.push_back(loadIcon("day.png"));
+    icons_visionMode.push_back(loadIcon("night.png"));
+
+    cout << "Icons load sucsess." << endl;
   }
 
   //====================
@@ -274,7 +367,7 @@ bool initGUI(int SCR_W, int SCR_H) {
   R_block_UI.w = R_ControlPanel.w * 0.9;
   R_block_UI.h = R_ControlPanel.h / 4;
   R_block_UI.x = (R_ControlPanel.w - R_block_UI.w) / 2;
-  R_block_UI.y = R_block_UI.h / 2;
+  R_block_UI.y = R_block_UI.h / 3;
 
   SDL_QueryTexture(texts_InputData[0], NULL, NULL, &R_label_UI.w,
                    &R_label_UI.h);
@@ -353,6 +446,31 @@ bool initGUI(int SCR_W, int SCR_H) {
   decorate_TTH.w = R_block_curValues.w + 4;
   decorate_TTH.h = R_block_curValues.h + 4;
 
+  // Block of load / upload values.
+  SDL_QueryTexture(icons_load[0], NULL, NULL, &R_button_load.w,
+                   &R_button_load.h);
+  SDL_QueryTexture(icons_upload[0], NULL, NULL, &R_button_upload.w,
+                   &R_button_upload.h);
+
+  R_block_loadUpload.w = R_button_load.w + R_button_upload.w + 30;
+  R_block_loadUpload.h = R_button_load.h;
+  R_block_loadUpload.x = 10 + (280 - R_block_loadUpload.w) / 2;
+  R_block_loadUpload.y = 720 * 0.61;
+
+  // Icon labels.
+  R_button_load.x = R_block_loadUpload.x;
+  R_button_upload.x = R_button_load.x + R_button_load.w + 15;
+
+  R_button_load.y = R_block_loadUpload.y;
+  R_button_upload.y = R_button_load.y;
+
+  // Icon switch vision mode.
+  SDL_QueryTexture(icons_visionMode[0], NULL, NULL, &R_button_visionMode.w, &R_button_visionMode.h);
+  R_button_visionMode.w *= 0.6;
+  R_button_visionMode.h *= 0.6;
+  R_button_visionMode.x = (280 - R_button_visionMode.w) / 2;
+  R_button_visionMode.y = 720 - R_button_visionMode.h - 20;
+
   return true;
   //====================
 }
@@ -379,12 +497,16 @@ void destroyGUI(void) {
     int c_Texture = 0;
 
     vector<SDL_Texture *>::iterator i_Texture;
-    for (i_Texture = gC_textrure.begin(); i_Texture != gC_textrure.end();
+    for (i_Texture = gC_texture.begin(); i_Texture != gC_texture.end();
          ++i_Texture, ++c_Texture)
       SDL_DestroyTexture(*i_Texture);
 
-    gC_textrure.clear();
+    gC_texture.clear();
     cout << c_Texture << " textures was destroyed." << endl;
+
+    SDL_Quit();
+    IMG_Quit();
+    cout << "All system was closed." << endl;
 
   }
 
@@ -543,14 +665,21 @@ bool showMain(void) {
   SDL_SetRenderDrawColor(render, c1, c2, c3, SDL_ALPHA_OPAQUE);
   SDL_RenderFillRect(render, &R_backbround);
 
-  c1 = colors_background[0][0];
-  c2 = colors_background[0][1];
-  c3 = colors_background[0][2];
+  c1 = colors_fields[visionMode][0];
+  c2 = colors_fields[visionMode][1];
+  c3 = colors_fields[visionMode][2];
 
   // Draw block of input data.
   SDL_SetRenderDrawColor(render, c1, c2, c3, SDL_ALPHA_OPAQUE);
   drawBlock_input();
   drawBlock_imitation();
+
+  // Display button l/upl.
+  SDL_RenderCopy(render, icons_load[visionMode], NULL, &R_button_load);
+  SDL_RenderCopy(render, icons_upload[visionMode], NULL, &R_button_upload);
+
+  // Display button of visionMode.
+  SDL_RenderCopy(render, icons_visionMode[visionMode], NULL, &R_button_visionMode);
 
   return true;
 }
@@ -632,10 +761,12 @@ void drawTTH(int x, int y) {
 
 void drawGraph() { drawAxis(); }
 
-void setVisionMode(bool mode) {
+void setVisionMode() {
   // Set up vision mode.
-  if (mode)
+  if (!visionMode)
     visionMode = 1;
   else
     visionMode = 0;
+
+  setLabels();
 }

@@ -23,4 +23,5 @@ void displayChanges();
 // Replace values.
 void changeUI();
 
+void setVisionMode();
 #endif // !_H_GUI

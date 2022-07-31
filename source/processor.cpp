@@ -29,6 +29,9 @@ extern bool displayCursor;
 extern bool active_button_Imitate; // check of active button Imitate.
 extern SDL_Rect R_field_Mz;        // rect of UI Mz.
 extern SDL_Rect R_field_Amplitude; // rect of Amplitude.
+extern SDL_Rect R_button_load; // button of load.
+extern SDL_Rect R_button_upload; // button of upload.
+extern SDL_Rect R_button_visionMode; // button of visionMode.
 
 int i;
 extern float scaleY;
@@ -176,6 +179,7 @@ bool processor(SDL_Event event) {
       cout << "UI Mz: " << endl;
       return true;
     }
+
     if (SDL_PointInRect(&coordBP, &R_button_Apply) == SDL_TRUE) {
       Mz = value_Mz;
       Amplitude = value_A;
@@ -185,6 +189,23 @@ bool processor(SDL_Event event) {
       cout << "Amplitude: " << Amplitude << endl;
       return true;
     }
+
+    if (SDL_PointInRect(&coordBP, &R_button_load)) {
+      cout << "Button load is clicked." << endl;
+      return true;
+      }
+
+    if (SDL_PointInRect(&coordBP, &R_button_upload)) {
+      cout << "Button upload is clicked." << endl;
+      return true;
+      }
+
+    if (SDL_PointInRect(&coordBP, &R_button_visionMode)) {
+        setVisionMode();
+        return true;
+
+      }
+
 
     // ************************************************************
     // ************************************************************
